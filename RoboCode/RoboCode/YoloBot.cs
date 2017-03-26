@@ -103,7 +103,7 @@ namespace YoloSpace
             switch (CurrentPhase)
             {
                 case RoboPhase.ArenaObservation:
-                    changeDirection();
+                    ChangeDirection();
                     break;
             }
 
@@ -111,7 +111,7 @@ namespace YoloSpace
             robots[evnt.Name] = new EnemyBot(evnt, X, Y);
         }
 
-        private void changeDirection()
+        private void ChangeDirection()
         {
             Console.WriteLine("Run away!");
             TurnLeft(1);
