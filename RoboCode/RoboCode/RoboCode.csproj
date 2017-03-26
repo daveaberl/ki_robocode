@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1E2DBC86-B697-45B9-87B4-60AEBF5B646A}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>RobocodeTest</RootNamespace>
-    <AssemblyName>RobocodeTest</AssemblyName>
+    <RootNamespace>YoloSpace</RootNamespace>
+    <AssemblyName>YoloSpace</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

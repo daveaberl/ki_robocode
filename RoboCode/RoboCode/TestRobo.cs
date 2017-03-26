@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RobocodeTest
+namespace YoloSpace
 {
-    class TestRobo : Robot
+    class YoloBot : Robot
     {
         public override void Run()
         {
