@@ -9,11 +9,39 @@ namespace YoloSpace
 {
     class YoloBot : Robot
     {
+        private const double DANGER_THRESHOLD = 0x0;
+
+        private RoboPhase currentPhase = RoboPhase.ArenaObservation;
+        private Dictionary<Robot, double> robotDanger = new Dictionary<Robot, double>();
+
+        private void ArenaObservation()
+        {
+        }
+
+        private void MeetAndGreet()
+        {
+        }
+
+        private void KillItWithFire()
+        {
+        }
+
         public override void Run()
         {
             while (true)
             {
-                // TODO: Kill it with fire
+                switch (currentPhase)
+                {
+                    case RoboPhase.ArenaObservation:
+                        ArenaObservation();
+                        break;
+                    case RoboPhase.MeetAndGreet:
+                        MeetAndGreet();
+                        break;
+                    case RoboPhase.KillItWithFire:
+                        KillItWithFire();
+                        break;
+                }
             }
         }
     }
