@@ -47,21 +47,58 @@ namespace YoloSpace
         private Dictionary<ScannedRobotEvent, double> robotDanger =
             new Dictionary<ScannedRobotEvent, double>();
 
-        private Dictionary<string, ScannedRobotEvent> robots =
-            new Dictionary<string, ScannedRobotEvent>();
+        private Dictionary<string, EnemyBot> robots =
+            new Dictionary<string, EnemyBot>();
 
         private HitByBulletEvent lastBulletHit;
         private string targetName;
 
+        private bool directionIndicator = true;
+
         private void FollowWall()
         {
-            if (DetermineDistance(CurrentDirection) < OFFSET)
+            switch (currentPhase)
             {
-                TurnLeft(1);
-                TurnLeft(Heading % 90);
-            }
+                case RoboPhase.MeetAndGreet:
+                    if (DetermineDistance(CurrentDirection) < OFFSET)
+                    {
+                        TurnLeft(1);
+                        TurnLeft(Heading % 90);
+                    }
+                    SetAhead(20);
+                    break;
+                case RoboPhase.KillItWithFire:
+                    if (DetermineDistance(CurrentDirection) < OFFSET)
+                    {
+                        if (directionIndicator)
+                        {
+                            Ahead(DetermineDistance(CurrentDirection));
+                        } else
+                        {
+                            Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
+                        }
+                    }
 
-            SetAhead(20);
+                    break;
+
+            }
+        }
+
+        private Direction DetermineOppositeDirection(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.NORTH:
+                    return Direction.SOUTH;
+                case Direction.EAST:
+                    return Direction.WEST;
+                case Direction.SOUTH:
+                    return Direction.NORTH;
+                case Direction.WEST:
+                    return Direction.EAST;
+                default:
+                    return Direction.UNKOWN;
+            }
         }
 
         private double CalculateDanger(ScannedRobotEvent enemy)
@@ -85,7 +122,7 @@ namespace YoloSpace
                 targetName = evnt.Name;
         }
 
-        private void changeDirection()
+        private void ChangeDirection()
         {
             Console.WriteLine("Run away!");
             TurnLeft(1);
@@ -95,8 +132,7 @@ namespace YoloSpace
         private void MeetAndGreet()
         {
             FollowWall();
-            // TurnRadarLeft(10);
-
+            TurnRadarLeft(45);
             Execute();
         }
 
@@ -210,7 +246,7 @@ namespace YoloSpace
 
             if (lastBulletHit != null)
             {
-                ScannedRobotEvent lastScanStatus = null;
+                EnemyBot lastScanStatus = null;
                 double bearing = lastBulletHit.Bearing;
 
                 if (robots.ContainsKey(lastBulletHit.Name))
@@ -221,19 +257,22 @@ namespace YoloSpace
                         bearing = lastScanStatus.Bearing;
                 }
 
+                if (Time - lastBulletHit.Time >= 500)
+                {
+                    lastBulletHit = null;
+                    CurrentPhase = RoboPhase.MeetAndGreet;
+                }
 
                 double degrees = (Heading + bearing + 360) % 360;
 
-                //if (RadarHeading - degrees < 180)
-                //    SetTurnRadarLeft(RadarHeading - degrees);
-                //else
-                //    SetTurnRadarRight(RadarHeading - degrees);
 
-                //if (GunHeading - degrees < 180)
-                //    SetTurnGunLeft(GunHeading - degrees);
-                //else
-                //    SetTurnGunRight(GunHeading - degrees);
+
                 SetRadarHeadingTo(degrees);
+
+                TurnRadarLeft(45);
+                TurnRadarRight(90);
+
+                
                 SetGunHeadingTo(degrees);
 
                 SetFire(1);
@@ -254,19 +293,17 @@ namespace YoloSpace
             Execute();
         }
 
-
-        private Direction DetermineDirection()
+        public override void OnBulletHit(BulletHitEvent evnt)
         {
-            TurnLeft(Heading % 90);
-            if (Heading == 270)
-                return Direction.WEST;
-            else if (Heading == 90)
-                return Direction.EAST;
-            else if (Heading == 180)
-                return Direction.SOUTH;
-            else if (Heading == 0)
-                return Direction.NORTH;
-            return Direction.UNKOWN;
+            base.OnBulletHit(evnt);
+
+            if (robots.ContainsKey(evnt.VictimName))
+            {
+                robots[evnt.VictimName].X = evnt.Bullet.X;
+                robots[evnt.VictimName].Y = evnt.Bullet.Y;
+                robots[evnt.VictimName].Time = evnt.Time;
+                robots[evnt.VictimName].Energy = evnt.VictimEnergy;
+            }
         }
 
         private double DetermineDistance(Direction direction)
