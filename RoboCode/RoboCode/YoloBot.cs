@@ -130,12 +130,11 @@ namespace YoloSpace
             }
         }
 
-        private double CalculateDanger(ScannedRobotEvent enemy)
-            => enemy.Distance;
-
         public override void OnScannedRobot(ScannedRobotEvent evnt)
         {
             base.OnScannedRobot(evnt);
+
+            if (Others == 1) targetName = evnt.Name;
 
             switch (CurrentPhase)
             {
@@ -205,7 +204,7 @@ namespace YoloSpace
             var enemy = robots[evnt.Name];
             enemy.Hits++;
 
-            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 1000) return;
+            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 500) return;
 
             if (lastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
@@ -333,7 +332,7 @@ namespace YoloSpace
                     return;
                 }
 
-                if (Time - time >= 500 && Others > 1)
+                if (Time - time >= 300 && Others > 1)
                 {
                     lastBulletHit = null;
                     targetName = null;
@@ -359,7 +358,6 @@ namespace YoloSpace
 
 
                 SetGunHeadingTo(degrees);
-
                 SetFire(1);
             }
             else
@@ -368,20 +366,8 @@ namespace YoloSpace
                 targetName = null;
                 lastBulletHit = null;
             }
-        }
 
-        private void KillingItSoftly()
-        {
-            if (string.IsNullOrEmpty(targetName)) //Find last robot
-            {
-
-            }
-            else //Kill last robot
-            {
-
-            }
-
-            Execute();
+            Navigate();
         }
 
         public override void OnBulletHit(BulletHitEvent evnt)
@@ -426,7 +412,7 @@ namespace YoloSpace
             double xMiddle = BattleFieldWidth / 2;
             double yMiddle = BattleFieldHeight / 2;
 
-            SetTankHeadingTo(CoordinateHelper.GetAngle(X, Y, xMiddle, yMiddle));
+            SetTankHeadingTo(Heading + CoordinateHelper.GetAngle(X, Y, xMiddle, yMiddle));
             Ahead(200);
 
             CurrentPhase = RoboPhase.WallRush;
@@ -437,24 +423,33 @@ namespace YoloSpace
         public override void Run()
         {
             Console.WriteLine("START");
+            BodyColor = System.Drawing.Color.Black;
+            GunColor = System.Drawing.Color.White;
+            RadarColor = System.Drawing.Color.White;
             WallRush();
             while (true)
             {
                 switch (CurrentPhase)
                 {
                     case RoboPhase.WallRush:
+                        BodyColor = System.Drawing.Color.Black;
                         WallRush();
                         break;
                     case RoboPhase.MeetAndGreet:
+                        BodyColor = System.Drawing.Color.Orange;
                         MeetAndGreet();
                         break;
                     case RoboPhase.KillItWithFire:
+                        BodyColor = System.Drawing.Color.Red;
+                        if(Others == 1)
+                        {
+                            BodyColor = System.Drawing.Color.Transparent;
+                        }
+
                         KillItWithFire();
                         break;
-                    case RoboPhase.KillingItSoftly:
-                        KillingItSoftly();
-                        break;
                     case RoboPhase.RunForestRun:
+                        BodyColor = System.Drawing.Color.Pink;
                         RunForestRun();
                         break;
                 }
