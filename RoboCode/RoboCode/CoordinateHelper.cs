@@ -17,10 +17,10 @@ namespace YoloSpace
 
         public static double GetAngle (double x1, double y1, double x2, double y2)
         {
-            var xDiff = x2 - x1;
-            var yDiff = y2 - y1;
-
-            return Math.Atan2(yDiff, xDiff) * 180.0 / Math.PI;
+            double upperVal = x1 * x2 + y1 * y2;
+            double lowerVal = Math.Sqrt(x1 * x1 + y1 * y1) * Math.Sqrt(x2 * x2 + y2 * y2);
+            Console.Write("upper:"+upperVal + " lower:" + lowerVal);
+            return Math.Acos(upperVal / lowerVal) * 180.0 / Math.PI;
         }
     }
 
