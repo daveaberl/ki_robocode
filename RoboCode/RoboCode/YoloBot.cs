@@ -157,9 +157,6 @@ namespace YoloSpace
             double enemyY = (Y + Math.Cos(angle) * evnt.Distance);
 
             robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading);
-
-            if (CurrentPhase == RoboPhase.KillingItSoftly)
-                targetName = evnt.Name;
         }
 
         private void ChangeDirection()
@@ -191,7 +188,7 @@ namespace YoloSpace
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
-            if (!robots.ContainsKey(evnt.Name))return;
+            if (!robots.ContainsKey(evnt.Name)) return;
 
             var enemy = robots[evnt.Name];
 
@@ -218,10 +215,7 @@ namespace YoloSpace
                 lastBulletHit = null;
                 targetName = null;
 
-                if (Others > 1)
-                    CurrentPhase = RoboPhase.MeetAndGreet;
-                else
-                    CurrentPhase = RoboPhase.KillingItSoftly;
+                CurrentPhase = RoboPhase.WallRush;
             }
 
             base.OnRobotDeath(evnt);
@@ -294,6 +288,9 @@ namespace YoloSpace
                 double? bearing = lastBulletHit?.Bearing;
                 long? time = lastBulletHit?.Time;
 
+                double? x = lastBulletHit?.Bullet?.X;
+                double? y = lastBulletHit?.Bullet?.Y;
+
                 if (robots.ContainsKey(targetName))
                 {
                     lastScanStatus = robots[targetName];
@@ -302,6 +299,9 @@ namespace YoloSpace
                     {
                         bearing = lastScanStatus.Bearing;
                         time = lastScanStatus.Time;
+
+                        x = lastScanStatus.X;
+                        y = lastScanStatus.Y;
                     }
                 }
 
@@ -320,8 +320,8 @@ namespace YoloSpace
                     return;
                 }
 
-                double enemyX = lastScanStatus?.X ?? lastBulletHit.Bullet.X;
-                double enemyY = lastScanStatus?.Y ?? lastBulletHit.Bullet.Y;
+                double enemyX = x.Value;
+                double enemyY = y.Value;
 
                 double p1X = X - X;
                 double p1Y = enemyY - Y;
