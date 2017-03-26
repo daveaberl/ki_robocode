@@ -111,12 +111,12 @@ namespace YoloSpace
             switch (CurrentPhase)
             {
                 case RoboPhase.WallRush:
-                    changeDirection();
+                    ChangeDirection();
                     break;
             }
 
             robotDanger[evnt] = CalculateDanger(evnt);
-            robots[evnt.Name] = evnt;
+            robots[evnt.Name] = new EnemyBot(evnt, X, Y);
 
             if (CurrentPhase == RoboPhase.KillingItSoftly)
                 targetName = evnt.Name;
