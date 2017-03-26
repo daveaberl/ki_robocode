@@ -50,19 +50,19 @@ namespace YoloSpace
         private void MeetAndGreet()
         {
             FollowWall();
-            TurnRadarLeft(10);
+            // TurnRadarLeft(10);
 
             Execute();
         }
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
-            if (lastBulletHit == null &&
-                CurrentPhase == RoboPhase.MeetAndGreet)
+            if (lastBulletHit == null && CurrentPhase == RoboPhase.MeetAndGreet)
             {
                 lastBulletHit = evnt;
                 CurrentPhase = RoboPhase.KillItWithFire;
             }
+            else if (lastBulletHit?.Name == evnt.Name) lastBulletHit = evnt;
 
             base.OnHitByBullet(evnt);
         }
@@ -76,6 +76,25 @@ namespace YoloSpace
 
             base.OnRobotDeath(evnt);
         }
+        
+        private void SetGunHeadingTo(double targetHeading)
+        {
+            double rel = GunHeading - targetHeading;
+
+            if (rel > 0)
+                SetTurnGunRight(rel);
+            else
+                SetTurnGunLeft(-rel);
+
+        }
+        private void SetTankHeadingTo(double targetHeading)
+        {
+
+        }
+        private void SetRadarHeadingTo(double targetHeading)
+        {
+
+        }
 
         private void KillItWithFire()
         {
@@ -83,12 +102,29 @@ namespace YoloSpace
 
             if (lastBulletHit != null)
             {
-                if (lastBulletHit.Bearing < 0)
-                    SetTurnRadarLeft(lastBulletHit.Bearing);
-                else
-                    SetTurnRadarRight(lastBulletHit.Bearing);
-            }
+                ScannedRobotEvent lastScanStatus = null;
+                double bearing = lastBulletHit.Bearing;
 
+                if (robots.ContainsKey(lastBulletHit.Name))
+                {
+                    lastScanStatus = robots[lastBulletHit.Name];
+
+                    if (lastScanStatus.Time > lastBulletHit.Time)
+                        bearing = lastScanStatus.Bearing;
+                }
+
+
+                double degrees = (Heading + bearing + 360) % 360;
+
+                if (RadarHeading - degrees < 180)
+                    SetTurnRadarLeft(RadarHeading - degrees);
+                else
+                    SetTurnRadarRight(RadarHeading - degrees);
+
+                SetGunHeadingTo(degrees);
+
+                SetFire(1);
+            }
 
             Execute();
         }
