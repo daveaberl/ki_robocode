@@ -200,7 +200,14 @@ namespace YoloSpace
                 double degrees = (Heading + bearing + 360) % 360;
 
                 SetGunHeadingTo(degrees);
-                SetTurnRadarLeft(45);
+
+                if (RadarHeading - degrees < 180)
+                    TurnRadarLeft(RadarHeading - degrees);
+                else
+                    TurnRadarRight(RadarHeading - degrees);
+
+                TurnRadarLeft(45);
+                TurnRadarRight(90);
 
                 SetFire(1);
             }
