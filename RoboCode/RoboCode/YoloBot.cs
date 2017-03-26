@@ -179,7 +179,7 @@ namespace YoloSpace
 
         private void MeetAndGreet()
         {
-            CheckEnemies();
+            //CheckEnemies();
             Navigate();
             TurnRadarLeft(45);
             Execute();
@@ -340,8 +340,9 @@ namespace YoloSpace
                     return;
                 }
 
-                double enemyX = x.Value;
-                double enemyY = y.Value;
+                double enemyX = lastScanStatus?.X ?? lastBulletHit.Bullet.X;
+                double enemyY = lastScanStatus?.Y ?? lastBulletHit.Bullet.Y;
+                Console.WriteLine($"enemy: {enemyX}/{enemyY}");
 
                 double p1X = X - X;
                 double p1Y = enemyY - Y;
@@ -349,6 +350,19 @@ namespace YoloSpace
                 double p2Y = enemyY - Y;
 
                 double degrees = CoordinateHelper.GetAngle(p1X, p1Y, p2X, p2Y);
+
+                if (enemyX < X && enemyY > Y) // 4. Quadrant
+                {
+                    degrees = 360 - degrees;
+                }
+                else if (enemyX > X && enemyY < Y) //2. Quadrant
+                {
+                    degrees = 180 - degrees;
+                }
+                else if (enemyX < X && enemyY < Y) //3. Quadrant
+                {
+                    degrees += 180;
+                }
                 Console.WriteLine(" degree: " + degrees);
 
                 SetRadarHeadingTo(degrees);
