@@ -179,7 +179,7 @@ namespace YoloSpace
 
         private void MeetAndGreet()
         {
-            //CheckEnemies();
+            CheckEnemies();
             Navigate();
             TurnRadarLeft(45);
             Execute();
