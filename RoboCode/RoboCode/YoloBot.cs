@@ -9,7 +9,7 @@ namespace YoloSpace
 {
     class YoloBot : AdvancedRobot
     {
-        private const double DANGER_THRESHOLD = 0x0;
+        private const double DISTANCE_THRESHOLD = 500;
         private const double OFFSET = 40;
 
         private Direction CurrentDirection
@@ -169,6 +169,12 @@ namespace YoloSpace
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
+            if (!robots.ContainsKey(evnt.Name))return;
+
+            var enemy = robots[evnt.Name];
+
+            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 1000) return;
+
             if (lastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
             {
