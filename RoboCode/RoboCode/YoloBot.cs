@@ -121,7 +121,7 @@ namespace YoloSpace
         private void MeetAndGreet()
         {
             FollowWall();
-            TurnRadarLeft(30);
+            TurnRadarLeft(45);
             Execute();
         }
 
@@ -184,14 +184,16 @@ namespace YoloSpace
                         bearing = lastScanStatus.Bearing;
                 }
 
+                if (Time - lastBulletHit.Time >= 500)
+                {
+                    lastBulletHit = null;
+                    CurrentPhase = RoboPhase.MeetAndGreet;
+                }
+
                 double degrees = (Heading + bearing + 360) % 360;
 
-                if (RadarHeading - degrees < 180)
-                    SetTurnRadarLeft(RadarHeading - degrees);
-                else
-                    SetTurnRadarRight(RadarHeading - degrees);
-
                 SetGunHeadingTo(degrees);
+                SetTurnRadarLeft(45);
 
                 SetFire(1);
             }
