@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestRobo.cs" />
+    <Compile Include="YoloBot.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
