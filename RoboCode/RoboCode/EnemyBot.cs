@@ -32,11 +32,8 @@ namespace YoloSpace
             Time = ev.Time;
             Bearing = ev.Bearing;
             Distance = ev.Distance;
-
-            var relPos = CoordinateHelper.GetRelativePosition(Distance, (360 + robotHeading + Bearing - 90) % 360);
-
-            X = relPos.X + robotX;
-            Y = -relPos.Y + robotY;
+            X = robotX;
+            Y = robotY;
         }
     }
 }

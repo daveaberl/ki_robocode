@@ -128,6 +128,9 @@ namespace YoloSpace
         private double CalculateDanger(ScannedRobotEvent enemy)
             => enemy.Distance;
 
+
+        RobotStatus status;
+
         public override void OnScannedRobot(ScannedRobotEvent evnt)
         {
             base.OnScannedRobot(evnt);
@@ -139,15 +142,26 @@ namespace YoloSpace
                     break;
             }
 
+            double angleToEnemy = evnt.Bearing;
+
+            double angle = Math.PI * (Heading + angleToEnemy % 360) / 180;
+
+            // Calculate the coordinates of the robot
+            double enemyX = (X + Math.Sin(angle) * evnt.Distance);
+            double enemyY = (Y + Math.Cos(angle) * evnt.Distance);
+
+            robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading);
+
+
             if (!robots.ContainsKey(evnt.Name))
             {
-                Console.WriteLine("* found new enemy: " + evnt.Name);
+                Console.WriteLine("* found new enemy: " + evnt.Name + " x: " + robots[evnt.Name].X + " y: " + robots[evnt.Name].Y);
             }
             else
             {
-                Console.WriteLine("* found enemy again: " + evnt.Name);
+                Console.WriteLine("* found enemy again: " + evnt.Name + " x: " + robots[evnt.Name].X + " y: " + robots[evnt.Name].Y);
             }
-            robots[evnt.Name] = new EnemyBot(evnt, X, Y, Heading);
+
 
             if (CurrentPhase == RoboPhase.KillingItSoftly)
                 targetName = evnt.Name;
@@ -277,16 +291,17 @@ namespace YoloSpace
                 }
 
                 double degrees = (Heading + bearing + 360) % 360;
-                degrees = CoordinateHelper.GetAngle(X, Y, 
-                    lastScanStatus?.X ?? lastBulletHit.Bullet.X, 
-                    lastScanStatus?.Y ?? lastBulletHit.Bullet.Y);
 
+                Console.WriteLine("degree: " + degrees);
 
+                //degrees = CoordinateHelper.GetAngle(X, Y, 
+                //    lastScanStatus?.X ?? lastBulletHit.Bullet.X, 
+                //    lastScanStatus?.Y ?? lastBulletHit.Bullet.Y);
+                
                 SetRadarHeadingTo(degrees);
 
                 TurnRadarLeft(45);
                 TurnRadarRight(90);
-
                 
                 SetGunHeadingTo(degrees);
 
