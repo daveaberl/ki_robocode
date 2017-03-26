@@ -305,12 +305,16 @@ namespace YoloSpace
                     return;
                 }
 
-                double degrees = (Heading + bearing.Value + 360) % 360;
+                double enemyX = lastScanStatus?.X ?? lastBulletHit.Bullet.X;
+                double enemyY = lastScanStatus?.Y ?? lastBulletHit.Bullet.Y;
 
-                //degrees = CoordinateHelper.GetAngle(X, Y,
-                //    lastScanStatus?.X ?? lastBulletHit.Bullet.X,
-                //    lastScanStatus?.Y ?? lastBulletHit.Bullet.Y);
+                double p1X = X - X;
+                double p1Y = enemyY - Y;
+                double p2X = enemyX - X;
+                double p2Y = enemyY - Y;
 
+                double degrees = CoordinateHelper.GetAngle(p1X, p1Y, p2X, p2Y);
+                Console.WriteLine(" degree: " + degrees);
 
                 SetRadarHeadingTo(degrees);
 
