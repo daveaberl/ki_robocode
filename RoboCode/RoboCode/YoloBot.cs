@@ -110,7 +110,7 @@ namespace YoloSpace
             {
                 Console.WriteLine("* found enemy again: " + evnt.Name);
             }
-            robots[evnt.Name] = new EnemyBot(evnt, X, Y);
+            robots[evnt.Name] = new EnemyBot(evnt, X, Y, Heading);
 
             if (CurrentPhase == RoboPhase.KillingItSoftly)
                 targetName = evnt.Name;
@@ -215,25 +215,6 @@ namespace YoloSpace
             }
         }
 
-        private void Test(double targetDir)
-        {
-            double absDegrees = Math.Abs(targetDir - GunHeading);
-            if (targetDir > GunHeading)
-            {
-                if (absDegrees > 180)
-                    SetTurnGunLeft(absDegrees - 180);
-                else
-                    SetTurnGunRight(absDegrees);
-            }
-            else
-            {
-                if (absDegrees > 180)
-                    SetTurnGunRight(absDegrees - 180);
-                else
-                    SetTurnGunLeft(absDegrees);
-            }
-        }
-
         private void KillItWithFire()
         {
             FollowWall();
@@ -258,8 +239,10 @@ namespace YoloSpace
                 }
 
                 double degrees = (Heading + bearing + 360) % 360;
-
-
+                degrees = CoordinateHelper.GetAngle(X, Y, 
+                    lastScanStatus?.X ?? lastBulletHit.Bullet.X, 
+                    lastScanStatus?.Y ?? lastBulletHit.Bullet.Y);
+                
 
                 SetRadarHeadingTo(degrees);
 

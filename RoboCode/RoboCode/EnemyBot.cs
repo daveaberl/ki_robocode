@@ -24,7 +24,7 @@ namespace YoloSpace
 
         public EnemyBot() { }
 
-        public EnemyBot(ScannedRobotEvent ev, double robotX, double robotY)
+        public EnemyBot(ScannedRobotEvent ev, double robotX, double robotY, double robotHeading)
         {
             Name = ev.Name;
             Energy = ev.Energy;
@@ -33,10 +33,10 @@ namespace YoloSpace
             Bearing = ev.Bearing;
             Distance = ev.Distance;
 
-            var relPos = CoordinateHelper.GetRelativePosition(Distance, Heading + Bearing);
+            var relPos = CoordinateHelper.GetRelativePosition(Distance, (360 + robotHeading + Bearing - 90) % 360);
 
             X = relPos.X + robotX;
-            Y = relPos.Y + robotY;
+            Y = -relPos.Y + robotY;
         }
     }
 }
