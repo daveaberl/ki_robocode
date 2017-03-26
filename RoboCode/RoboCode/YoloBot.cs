@@ -44,9 +44,6 @@ namespace YoloSpace
             }
         }
 
-        private Dictionary<ScannedRobotEvent, double> robotDanger =
-            new Dictionary<ScannedRobotEvent, double>();
-
         private Dictionary<string, EnemyBot> robots =
             new Dictionary<string, EnemyBot>();
 
@@ -68,16 +65,6 @@ namespace YoloSpace
                     SetAhead(20);
                     break;
                 case RoboPhase.KillItWithFire:
-                    if (DetermineDistance(CurrentDirection) < OFFSET)
-                    {
-                        if (directionIndicator)
-                        {
-                            Ahead(DetermineDistance(CurrentDirection));
-                        } else
-                        {
-                            Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
-                        }
-                    }
 
                     break;
 
@@ -115,7 +102,14 @@ namespace YoloSpace
                     break;
             }
 
-            robotDanger[evnt] = CalculateDanger(evnt);
+            if (!robots.ContainsKey(evnt.Name))
+            {
+                Console.WriteLine("* found new enemy: " + evnt.Name);
+            }
+            else
+            {
+                Console.WriteLine("* found enemy again: " + evnt.Name);
+            }
             robots[evnt.Name] = new EnemyBot(evnt, X, Y);
 
             if (CurrentPhase == RoboPhase.KillingItSoftly)
