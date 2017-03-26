@@ -33,11 +33,10 @@ namespace YoloSpace
             Bearing = ev.Bearing;
             Distance = ev.Distance;
 
-            var relX = Math.Cos(ev.Heading + ev.Bearing) * ev.Distance;
-            var relY = Math.Sin(ev.Heading + ev.Bearing) * ev.Distance;
+            var relPos = CoordinateHelper.GetRelativePosition(Distance, Heading + Bearing);
 
-            X = relX + robotX;
-            Y = relY + robotY;
+            X = relPos.X + robotX;
+            Y = relPos.Y + robotY;
         }
     }
 }
