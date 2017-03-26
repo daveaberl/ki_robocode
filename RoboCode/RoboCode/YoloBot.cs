@@ -147,7 +147,16 @@ namespace YoloSpace
             {
                 Console.WriteLine("* found enemy again: " + evnt.Name);
             }
-            robots[evnt.Name] = new EnemyBot(evnt, X, Y, Heading);
+
+            double angleToEnemy = evnt.Bearing;
+
+            double angle = Math.PI * (Heading + angleToEnemy % 360) / 180;
+
+            // Calculate the coordinates of the robot
+            double enemyX = (X + Math.Sin(angle) * evnt.Distance);
+            double enemyY = (Y + Math.Cos(angle) * evnt.Distance);
+
+            robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading);
 
             if (CurrentPhase == RoboPhase.KillingItSoftly)
                 targetName = evnt.Name;
@@ -289,7 +298,7 @@ namespace YoloSpace
                     return;
                 }
 
-                if (Time - time >= 500)
+                if (Time - time >= 500 && Others > 1)
                 {
                     lastBulletHit = null;
                     targetName = null;
