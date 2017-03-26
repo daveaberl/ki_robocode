@@ -54,13 +54,43 @@ namespace YoloSpace
 
         private void FollowWall()
         {
-            if (DetermineDistance(CurrentDirection) < OFFSET)
+            switch (currentPhase)
             {
-                TurnLeft(1);
-                TurnLeft(Heading % 90);
-            }
+                case RoboPhase.MeetAndGreet:
+                    if (DetermineDistance(CurrentDirection) < OFFSET)
+                    {
+                        TurnLeft(1);
+                        TurnLeft(Heading % 90);
+                    }
+                    SetAhead(20);
+                    break;
+                case RoboPhase.KillItWithFire:
+                    
+                    if (DetermineDistance(CurrentDirection) < OFFSET)
+                    {
+                        Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
+                    }
 
-            SetAhead(20);
+                    break;
+
+            }
+        }
+
+        private Direction DetermineOppositeDirection(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.NORTH:
+                    return Direction.SOUTH;
+                case Direction.EAST:
+                    return Direction.WEST;
+                case Direction.SOUTH:
+                    return Direction.NORTH;
+                case Direction.WEST:
+                    return Direction.EAST;
+                default:
+                    return Direction.UNKOWN;
+            }
         }
 
         private double CalculateDanger(ScannedRobotEvent enemy)
@@ -91,8 +121,7 @@ namespace YoloSpace
         private void MeetAndGreet()
         {
             FollowWall();
-            // TurnRadarLeft(10);
-
+            TurnRadarLeft(30);
             Execute();
         }
 
