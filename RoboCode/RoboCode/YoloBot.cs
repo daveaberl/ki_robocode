@@ -110,7 +110,7 @@ namespace YoloSpace
             switch (CurrentPhase)
             {
                 case RoboPhase.ArenaObservation:
-                    changeDirection();
+                    ChangeDirection();
                     break;
             }
 
@@ -118,7 +118,7 @@ namespace YoloSpace
             robots[evnt.Name] = new EnemyBot(evnt, X, Y);
         }
 
-        private void changeDirection()
+        private void ChangeDirection()
         {
             Console.WriteLine("Run away!");
             TurnLeft(1);
@@ -191,15 +191,16 @@ namespace YoloSpace
                         bearing = lastScanStatus.Bearing;
                 }
 
+                if (Time - lastBulletHit.Time >= 500)
+                {
+                    lastBulletHit = null;
+                    CurrentPhase = RoboPhase.MeetAndGreet;
+                }
 
                 double degrees = (Heading + bearing + 360) % 360;
 
-                if (RadarHeading - degrees < 180)
-                    SetTurnRadarLeft(RadarHeading - degrees);
-                else
-                    SetTurnRadarRight(RadarHeading - degrees);
-
                 SetGunHeadingTo(degrees);
+                SetTurnRadarLeft(45);
 
                 SetFire(1);
             }
@@ -215,6 +216,8 @@ namespace YoloSpace
             {
                 robots[evnt.VictimName].X = evnt.Bullet.X;
                 robots[evnt.VictimName].Y = evnt.Bullet.Y;
+                robots[evnt.VictimName].Time = evnt.Time;
+                robots[evnt.VictimName].Energy = evnt.VictimEnergy;
             }
         }
 
