@@ -123,10 +123,10 @@ namespace YoloSpace
         {
             double rel = GunHeading - targetHeading;
 
-            if (rel > 0)
-                SetTurnGunRight(rel);
+            if (GunHeading < targetHeading)
+                SetTurnGunRight(Math.Abs(rel));
             else
-                SetTurnGunLeft(-rel);
+                SetTurnGunLeft(Math.Abs(rel));
 
         }
         private void SetTankHeadingTo(double targetHeading)
@@ -162,6 +162,11 @@ namespace YoloSpace
                     SetTurnRadarLeft(RadarHeading - degrees);
                 else
                     SetTurnRadarRight(RadarHeading - degrees);
+
+                //if (GunHeading - degrees < 180)
+                //    SetTurnGunLeft(GunHeading - degrees);
+                //else
+                //    SetTurnGunRight(GunHeading - degrees);
 
                 SetGunHeadingTo(degrees);
 
