@@ -155,7 +155,6 @@ namespace YoloSpace
                         bearing = lastScanStatus.Bearing;
                 }
 
-
                 double degrees = (Heading + bearing + 360) % 360;
 
                 if (RadarHeading - degrees < 180)
@@ -179,6 +178,8 @@ namespace YoloSpace
             {
                 robots[evnt.VictimName].X = evnt.Bullet.X;
                 robots[evnt.VictimName].Y = evnt.Bullet.Y;
+                robots[evnt.VictimName].Time = evnt.Time;
+                robots[evnt.VictimName].Energy = evnt.VictimEnergy;
             }
         }
 
