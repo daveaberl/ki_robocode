@@ -8,8 +8,9 @@ namespace YoloSpace
 {
     public enum RoboPhase
     {
-        ArenaObservation,
+        WallRush,
         MeetAndGreet,
-        KillItWithFire
+        KillItWithFire,
+        KillingItSoftly
     }
 }

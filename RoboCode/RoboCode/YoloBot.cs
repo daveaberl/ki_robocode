@@ -30,7 +30,7 @@ namespace YoloSpace
             }
         }
 
-        private RoboPhase currentPhase = RoboPhase.ArenaObservation;
+        private RoboPhase currentPhase = RoboPhase.WallRush;
         private RoboPhase CurrentPhase
         {
             get
@@ -44,13 +44,11 @@ namespace YoloSpace
             }
         }
 
-        private Dictionary<ScannedRobotEvent, double> robotDanger =
-            new Dictionary<ScannedRobotEvent, double>();
-
         private Dictionary<string, EnemyBot> robots =
             new Dictionary<string, EnemyBot>();
 
         private HitByBulletEvent lastBulletHit;
+        private string targetName;
 
         private bool directionIndicator = true;
 
@@ -67,16 +65,6 @@ namespace YoloSpace
                     SetAhead(20);
                     break;
                 case RoboPhase.KillItWithFire:
-                    if (DetermineDistance(CurrentDirection) < OFFSET)
-                    {
-                        if (directionIndicator)
-                        {
-                            Ahead(DetermineDistance(CurrentDirection));
-                        } else
-                        {
-                            Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
-                        }
-                    }
 
                     break;
 
@@ -109,20 +97,30 @@ namespace YoloSpace
 
             switch (CurrentPhase)
             {
-                case RoboPhase.ArenaObservation:
+                case RoboPhase.WallRush:
                     ChangeDirection();
                     break;
             }
 
-            robotDanger[evnt] = CalculateDanger(evnt);
+            if (!robots.ContainsKey(evnt.Name))
+            {
+                Console.WriteLine("* found new enemy: " + evnt.Name);
+            }
+            else
+            {
+                Console.WriteLine("* found enemy again: " + evnt.Name);
+            }
             robots[evnt.Name] = new EnemyBot(evnt, X, Y);
+
+            if (CurrentPhase == RoboPhase.KillingItSoftly)
+                targetName = evnt.Name;
         }
 
         private void ChangeDirection()
         {
             Console.WriteLine("Run away!");
             TurnLeft(1);
-            ArenaObservation();
+            WallRush();
         }
 
         private void MeetAndGreet()
@@ -134,7 +132,8 @@ namespace YoloSpace
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
-            if (lastBulletHit == null && CurrentPhase == RoboPhase.MeetAndGreet)
+            if (lastBulletHit == null &&
+                CurrentPhase == RoboPhase.MeetAndGreet)
             {
                 lastBulletHit = evnt;
                 CurrentPhase = RoboPhase.KillItWithFire;
@@ -149,29 +148,90 @@ namespace YoloSpace
             if (lastBulletHit?.Name == evnt.Name)
             {
                 lastBulletHit = null;
-                CurrentPhase = RoboPhase.MeetAndGreet;
+
+                if (Others > 1)
+                    CurrentPhase = RoboPhase.MeetAndGreet;
+                else
+                    CurrentPhase = RoboPhase.KillingItSoftly;
             }
 
             base.OnRobotDeath(evnt);
         }
-        
-        private void SetGunHeadingTo(double targetHeading)
-        {
-            double rel = GunHeading - targetHeading;
 
-            if (GunHeading < targetHeading)
-                SetTurnGunRight(Math.Abs(rel));
+        private void SetGunHeadingTo(double targetDir)
+        {
+            double absDegrees = Math.Abs(targetDir - GunHeading);
+            if (targetDir > GunHeading)
+            {
+                if (absDegrees > 180)
+                    TurnGunLeft(absDegrees - 180);
+                else
+                    TurnGunRight(absDegrees);
+            }
             else
-                SetTurnGunLeft(Math.Abs(rel));
-
+            {
+                if (absDegrees > 180)
+                    TurnGunRight(absDegrees - 180);
+                else
+                    TurnGunLeft(absDegrees);
+            }
         }
-        private void SetTankHeadingTo(double targetHeading)
+            
+        private void SetTankHeadingTo(double targetDir)
         {
-
+            double absDegrees = Math.Abs(targetDir - Heading);
+            if (targetDir > Heading)
+            {
+                if (absDegrees > 180)
+                    TurnLeft(absDegrees - 180);
+                else
+                    TurnRight(absDegrees);
+            }
+            else
+            {
+                if (absDegrees > 180)
+                    TurnRight(absDegrees - 180);
+                else
+                    TurnLeft(absDegrees);
+            }
         }
-        private void SetRadarHeadingTo(double targetHeading)
-        {
 
+        private void SetRadarHeadingTo(double targetDir)
+        {
+            double absDegrees = Math.Abs(targetDir - RadarHeading);
+            if (targetDir > RadarHeading)
+            {
+                if (absDegrees > 180)
+                    TurnRadarLeft(absDegrees - 180);
+                else
+                    TurnRadarRight(absDegrees);
+            }
+            else
+            {
+                if (absDegrees > 180)
+                    TurnRadarRight(absDegrees - 180);
+                else
+                    TurnRadarLeft(absDegrees);
+            }
+        }
+
+        private void Test(double targetDir)
+        {
+            double absDegrees = Math.Abs(targetDir - GunHeading);
+            if (targetDir > GunHeading)
+            {
+                if (absDegrees > 180)
+                    SetTurnGunLeft(absDegrees - 180);
+                else
+                    SetTurnGunRight(absDegrees);
+            }
+            else
+            {
+                if (absDegrees > 180)
+                    SetTurnGunRight(absDegrees - 180);
+                else
+                    SetTurnGunLeft(absDegrees);
+            }
         }
 
         private void KillItWithFire()
@@ -199,17 +259,29 @@ namespace YoloSpace
 
                 double degrees = (Heading + bearing + 360) % 360;
 
-                SetGunHeadingTo(degrees);
 
-                if (RadarHeading - degrees < 180)
-                    TurnRadarLeft(RadarHeading - degrees);
-                else
-                    TurnRadarRight(RadarHeading - degrees);
+
+                SetRadarHeadingTo(degrees);
 
                 TurnRadarLeft(45);
                 TurnRadarRight(90);
 
+                
+                SetGunHeadingTo(degrees);
+
                 SetFire(1);
+            }
+        }
+
+        private void KillingItSoftly()
+        {
+            if(string.IsNullOrEmpty(targetName)) //Find last robot
+            {
+
+            }
+            else //Kill last robot
+            {
+                
             }
 
             Execute();
@@ -245,7 +317,7 @@ namespace YoloSpace
             }
         }
 
-        private void ArenaObservation()
+        private void WallRush()
         {
             double distance = DetermineDistance(CurrentDirection);
             Ahead(distance - OFFSET);
@@ -255,16 +327,22 @@ namespace YoloSpace
         public override void Run()
         {
             Console.WriteLine("START");
-            ArenaObservation();
+            WallRush();
             while (true)
             {
                 switch (CurrentPhase)
                 {
+                    case RoboPhase.WallRush:
+                        WallRush();
+                        break;
                     case RoboPhase.MeetAndGreet:
                         MeetAndGreet();
                         break;
                     case RoboPhase.KillItWithFire:
                         KillItWithFire();
+                        break;
+                    case RoboPhase.KillingItSoftly:
+                        KillingItSoftly();
                         break;
                 }
             }
