@@ -47,8 +47,8 @@ namespace YoloSpace
         private Dictionary<ScannedRobotEvent, double> robotDanger =
             new Dictionary<ScannedRobotEvent, double>();
 
-        private Dictionary<string, ScannedRobotEvent> robots =
-            new Dictionary<string, ScannedRobotEvent>();
+        private Dictionary<string, EnemyBot> robots =
+            new Dictionary<string, EnemyBot>();
 
         private HitByBulletEvent lastBulletHit;
 
@@ -108,7 +108,7 @@ namespace YoloSpace
             }
 
             robotDanger[evnt] = CalculateDanger(evnt);
-            robots[evnt.Name] = evnt;
+            robots[evnt.Name] = new EnemyBot(evnt, X, Y);
         }
 
         private void changeDirection()
@@ -173,7 +173,7 @@ namespace YoloSpace
 
             if (lastBulletHit != null)
             {
-                ScannedRobotEvent lastScanStatus = null;
+                EnemyBot lastScanStatus = null;
                 double bearing = lastBulletHit.Bearing;
 
                 if (robots.ContainsKey(lastBulletHit.Name))
@@ -192,17 +192,23 @@ namespace YoloSpace
                 else
                     SetTurnRadarRight(RadarHeading - degrees);
 
-                //if (GunHeading - degrees < 180)
-                //    SetTurnGunLeft(GunHeading - degrees);
-                //else
-                //    SetTurnGunRight(GunHeading - degrees);
-
                 SetGunHeadingTo(degrees);
 
                 SetFire(1);
             }
 
             Execute();
+        }
+
+        public override void OnBulletHit(BulletHitEvent evnt)
+        {
+            base.OnBulletHit(evnt);
+
+            if (robots.ContainsKey(evnt.VictimName))
+            {
+                robots[evnt.VictimName].X = evnt.Bullet.X;
+                robots[evnt.VictimName].Y = evnt.Bullet.Y;
+            }
         }
 
         private double DetermineDistance(Direction direction)
