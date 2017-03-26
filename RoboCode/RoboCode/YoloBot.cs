@@ -125,12 +125,11 @@ namespace YoloSpace
             }
         }
 
-        private double CalculateDanger(ScannedRobotEvent enemy)
-            => enemy.Distance;
-
         public override void OnScannedRobot(ScannedRobotEvent evnt)
         {
             base.OnScannedRobot(evnt);
+
+            if (Others == 1) targetName = evnt.Name;
 
             switch (CurrentPhase)
             {
@@ -192,7 +191,7 @@ namespace YoloSpace
 
             var enemy = robots[evnt.Name];
 
-            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 1000) return;
+            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 500) return;
 
             if (lastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
@@ -280,8 +279,6 @@ namespace YoloSpace
 
         private void KillItWithFire()
         {
-            Navigate();
-
             if (targetName != null)
             {
                 EnemyBot lastScanStatus = null;
@@ -312,7 +309,7 @@ namespace YoloSpace
                     return;
                 }
 
-                if (Time - time >= 500 && Others > 1)
+                if (Time - time >= 300 && Others > 1)
                 {
                     lastBulletHit = null;
                     targetName = null;
@@ -338,8 +335,6 @@ namespace YoloSpace
 
 
                 SetGunHeadingTo(degrees);
-
-                SetFire(1);
             }
             else
             {
@@ -347,20 +342,8 @@ namespace YoloSpace
                 targetName = null;
                 lastBulletHit = null;
             }
-        }
 
-        private void KillingItSoftly()
-        {
-            if (string.IsNullOrEmpty(targetName)) //Find last robot
-            {
-
-            }
-            else //Kill last robot
-            {
-
-            }
-
-            Execute();
+            Navigate();
         }
 
         public override void OnBulletHit(BulletHitEvent evnt)
@@ -416,9 +399,6 @@ namespace YoloSpace
                         break;
                     case RoboPhase.KillItWithFire:
                         KillItWithFire();
-                        break;
-                    case RoboPhase.KillingItSoftly:
-                        KillingItSoftly();
                         break;
                 }
             }
