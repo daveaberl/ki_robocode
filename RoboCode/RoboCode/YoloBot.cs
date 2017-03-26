@@ -125,12 +125,11 @@ namespace YoloSpace
             }
         }
 
-        private double CalculateDanger(ScannedRobotEvent enemy)
-            => enemy.Distance;
-
         public override void OnScannedRobot(ScannedRobotEvent evnt)
         {
             base.OnScannedRobot(evnt);
+
+            if (Others == 1) targetName = evnt.Name;
 
             switch (CurrentPhase)
             {
@@ -157,9 +156,6 @@ namespace YoloSpace
             double enemyY = (Y + Math.Cos(angle) * evnt.Distance);
 
             robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading);
-
-            if (CurrentPhase == RoboPhase.KillingItSoftly)
-                targetName = evnt.Name;
         }
 
         private void ChangeDirection()
@@ -191,11 +187,11 @@ namespace YoloSpace
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
-            if (!robots.ContainsKey(evnt.Name))return;
+            if (!robots.ContainsKey(evnt.Name)) return;
 
             var enemy = robots[evnt.Name];
 
-            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 1000) return;
+            if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 500) return;
 
             if (lastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
@@ -218,10 +214,7 @@ namespace YoloSpace
                 lastBulletHit = null;
                 targetName = null;
 
-                if (Others > 1)
-                    CurrentPhase = RoboPhase.MeetAndGreet;
-                else
-                    CurrentPhase = RoboPhase.KillingItSoftly;
+                CurrentPhase = RoboPhase.WallRush;
             }
 
             base.OnRobotDeath(evnt);
@@ -286,13 +279,14 @@ namespace YoloSpace
 
         private void KillItWithFire()
         {
-            Navigate();
-
             if (targetName != null)
             {
                 EnemyBot lastScanStatus = null;
                 double? bearing = lastBulletHit?.Bearing;
                 long? time = lastBulletHit?.Time;
+
+                double? x = lastBulletHit?.Bullet?.X;
+                double? y = lastBulletHit?.Bullet?.Y;
 
                 if (robots.ContainsKey(targetName))
                 {
@@ -302,6 +296,9 @@ namespace YoloSpace
                     {
                         bearing = lastScanStatus.Bearing;
                         time = lastScanStatus.Time;
+
+                        x = lastScanStatus.X;
+                        y = lastScanStatus.Y;
                     }
                 }
 
@@ -312,7 +309,7 @@ namespace YoloSpace
                     return;
                 }
 
-                if (Time - time >= 500 && Others > 1)
+                if (Time - time >= 300 && Others > 1)
                 {
                     lastBulletHit = null;
                     targetName = null;
@@ -352,7 +349,6 @@ namespace YoloSpace
 
 
                 SetGunHeadingTo(degrees);
-
                 SetFire(1);
             }
             else
@@ -361,20 +357,8 @@ namespace YoloSpace
                 targetName = null;
                 lastBulletHit = null;
             }
-        }
 
-        private void KillingItSoftly()
-        {
-            if (string.IsNullOrEmpty(targetName)) //Find last robot
-            {
-
-            }
-            else //Kill last robot
-            {
-
-            }
-
-            Execute();
+            Navigate();
         }
 
         public override void OnBulletHit(BulletHitEvent evnt)
@@ -430,9 +414,6 @@ namespace YoloSpace
                         break;
                     case RoboPhase.KillItWithFire:
                         KillItWithFire();
-                        break;
-                    case RoboPhase.KillingItSoftly:
-                        KillingItSoftly();
                         break;
                 }
             }
