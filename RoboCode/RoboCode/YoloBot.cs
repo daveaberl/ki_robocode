@@ -79,6 +79,18 @@ namespace YoloSpace
 
         private void KillItWithFire()
         {
+            FollowWall();
+
+            if (lastBulletHit != null)
+            {
+                if (lastBulletHit.Bearing < 0)
+                    SetTurnRadarLeft(lastBulletHit.Bearing);
+                else
+                    SetTurnRadarRight(lastBulletHit.Bearing);
+            }
+
+
+            Execute();
         }
 
 
@@ -122,18 +134,6 @@ namespace YoloSpace
             TurnLeft(Heading % 90);
             TurnGunLeft(1);
             TurnGunLeft(GunHeading % 90);
-            FollowWall();
-
-            if (lastBulletHit != null)
-            {
-                if (lastBulletHit.Bearing < 0)
-                    SetTurnRadarLeft(lastBulletHit.Bearing);
-                else
-                    SetTurnRadarRight(lastBulletHit.Bearing);
-            }
-
-
-            Execute();
         }
 
         public override void Run()
