@@ -15,7 +15,7 @@ namespace YoloSpace
         enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
         private Direction currentDirection = Direction.UNKOWN;
 
-        private RoboPhase CurrentPhase { get; set; } = RoboPhase.ArenaObservation;
+        private RoboPhase CurrentPhase { get; set; } = RoboPhase.WallRush;
         private Dictionary<ScannedRobotEvent, double> robotDanger =
             new Dictionary<ScannedRobotEvent, double>();
 
@@ -23,8 +23,9 @@ namespace YoloSpace
             new Dictionary<string, ScannedRobotEvent>();
 
         private HitByBulletEvent lastBulletHit;
+        private string targetName;
 
-        private void ArenaObservation()
+        private void WallRush()
         {
             CurrentPhase = RoboPhase.MeetAndGreet;
         }
@@ -45,6 +46,9 @@ namespace YoloSpace
 
             robotDanger[evnt] = CalculateDanger(evnt);
             robots[evnt.Name] = evnt;
+
+            if (CurrentPhase == RoboPhase.KillingItSoftly)
+                targetName = evnt.Name;
         }
 
         private void MeetAndGreet()
@@ -57,10 +61,10 @@ namespace YoloSpace
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {
+            lastBulletHit = evnt;
             if (lastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
             {
-                lastBulletHit = evnt;
                 CurrentPhase = RoboPhase.KillItWithFire;
             }
 
@@ -71,7 +75,11 @@ namespace YoloSpace
             if (lastBulletHit?.Name == evnt.Name)
             {
                 lastBulletHit = null;
-                CurrentPhase = RoboPhase.MeetAndGreet;
+
+                if (Others > 1)
+                    CurrentPhase = RoboPhase.MeetAndGreet;
+                else
+                    CurrentPhase = RoboPhase.KillingItSoftly;
             }
 
             base.OnRobotDeath(evnt);
@@ -89,6 +97,20 @@ namespace YoloSpace
                     SetTurnRadarRight(lastBulletHit.Bearing);
             }
 
+
+            Execute();
+        }
+
+        private void KillingItSoftly()
+        {
+            if(string.IsNullOrEmpty(targetName)) //Find last robot
+            {
+
+            }
+            else //Kill last robot
+            {
+                
+            }
 
             Execute();
         }
@@ -143,14 +165,17 @@ namespace YoloSpace
             {
                 switch (CurrentPhase)
                 {
-                    case RoboPhase.ArenaObservation:
-                        ArenaObservation();
+                    case RoboPhase.WallRush:
+                        WallRush();
                         break;
                     case RoboPhase.MeetAndGreet:
                         MeetAndGreet();
                         break;
                     case RoboPhase.KillItWithFire:
                         KillItWithFire();
+                        break;
+                    case RoboPhase.KillingItSoftly:
+                        KillingItSoftly();
                         break;
                 }
             }
