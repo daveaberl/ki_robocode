@@ -10,12 +10,40 @@ namespace YoloSpace
     class YoloBot : AdvancedRobot
     {
         private const double DANGER_THRESHOLD = 0x0;
-        private const double OFFSET = 20;
+        private const double OFFSET = 40;
 
         enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
-        private Direction currentDirection = Direction.UNKOWN;
+        private Direction CurrentDirection
+        {
+            get
+            {
+                TurnLeft(Heading % 90);
+                if (Heading == 270)
+                    return Direction.WEST;
+                else if (Heading == 90)
+                    return Direction.EAST;
+                else if (Heading == 180)
+                    return Direction.SOUTH;
+                else if (Heading == 0)
+                    return Direction.NORTH;
+                return Direction.UNKOWN;
+            }
+        }
 
-        private RoboPhase CurrentPhase { get; set; } = RoboPhase.ArenaObservation;
+        private RoboPhase currentPhase = RoboPhase.ArenaObservation;
+        private RoboPhase CurrentPhase
+        {
+            get
+            {
+                return currentPhase;
+            }
+            set
+            {
+                Console.WriteLine("* changed Phase to: " + value + " *");
+                currentPhase = value;
+            }
+        }
+
         private Dictionary<ScannedRobotEvent, double> robotDanger =
             new Dictionary<ScannedRobotEvent, double>();
 
@@ -24,16 +52,15 @@ namespace YoloSpace
 
         private HitByBulletEvent lastBulletHit;
 
-        private void ArenaObservation()
-        {
-            CurrentPhase = RoboPhase.MeetAndGreet;
-        }
-
         private void FollowWall()
         {
-            // Check wall
+            if (DetermineDistance(CurrentDirection) < OFFSET)
+            {
+                TurnLeft(1);
+                TurnLeft(Heading % 90);
+            }
 
-            SetAhead(10);
+            SetAhead(20);
         }
 
         private double CalculateDanger(ScannedRobotEvent enemy)
@@ -43,8 +70,22 @@ namespace YoloSpace
         {
             base.OnScannedRobot(evnt);
 
+            switch (CurrentPhase)
+            {
+                case RoboPhase.ArenaObservation:
+                    changeDirection();
+                    break;
+            }
+
             robotDanger[evnt] = CalculateDanger(evnt);
             robots[evnt.Name] = evnt;
+        }
+
+        private void changeDirection()
+        {
+            Console.WriteLine("Run away!");
+            TurnLeft(1);
+            ArenaObservation();
         }
 
         private void MeetAndGreet()
@@ -66,6 +107,7 @@ namespace YoloSpace
 
             base.OnHitByBullet(evnt);
         }
+
         public override void OnRobotDeath(RobotDeathEvent evnt)
         {
             if (lastBulletHit?.Name == evnt.Name)
@@ -89,23 +131,7 @@ namespace YoloSpace
                     SetTurnRadarRight(lastBulletHit.Bearing);
             }
 
-
             Execute();
-        }
-
-
-        private Direction DetermineDirection()
-        {
-            TurnLeft(Heading % 90);
-            if (Heading == 270)
-                return Direction.WEST;
-            else if (Heading == 90)
-                return Direction.EAST;
-            else if (Heading == 180)
-                return Direction.SOUTH;
-            else if (Heading == 0)
-                return Direction.NORTH;
-            return Direction.UNKOWN;
         }
 
         private double DetermineDistance(Direction direction)
@@ -125,27 +151,21 @@ namespace YoloSpace
             }
         }
 
-        private void DriveToWall()
+        private void ArenaObservation()
         {
-            currentDirection = DetermineDirection();
-            double distance = DetermineDistance(currentDirection);
+            double distance = DetermineDistance(CurrentDirection);
             Ahead(distance - OFFSET);
-            TurnLeft(1);
-            TurnLeft(Heading % 90);
-            TurnGunLeft(1);
-            TurnGunLeft(GunHeading % 90);
+            CurrentPhase = RoboPhase.MeetAndGreet;
         }
 
         public override void Run()
         {
-            DriveToWall();
+            Console.WriteLine("START");
+            ArenaObservation();
             while (true)
             {
                 switch (CurrentPhase)
                 {
-                    case RoboPhase.ArenaObservation:
-                        ArenaObservation();
-                        break;
                     case RoboPhase.MeetAndGreet:
                         MeetAndGreet();
                         break;
