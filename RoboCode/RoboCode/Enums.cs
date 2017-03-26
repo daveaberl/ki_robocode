@@ -12,4 +12,14 @@ namespace YoloSpace
         MeetAndGreet,
         KillItWithFire
     }
+
+
+    enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
+
+    enum KillItWithFirePhase
+    {
+        MoveFromWall,
+        Positioning,
+        Dodge
+    }
 }

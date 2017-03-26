@@ -12,7 +12,6 @@ namespace YoloSpace
         private const double DANGER_THRESHOLD = 0x0;
         private const double OFFSET = 40;
 
-        enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
         private Direction CurrentDirection
         {
             get
@@ -30,6 +29,7 @@ namespace YoloSpace
             }
         }
 
+        private KillItWithFirePhase currentKillItWithFirePhase;
         private RoboPhase currentPhase = RoboPhase.ArenaObservation;
         private RoboPhase CurrentPhase
         {
@@ -40,6 +40,8 @@ namespace YoloSpace
             set
             {
                 Console.WriteLine("* changed Phase to: " + value + " *");
+                if (value == RoboPhase.KillItWithFire)
+                    currentKillItWithFirePhase = KillItWithFirePhase.MoveFromWall;
                 currentPhase = value;
             }
         }
@@ -48,10 +50,12 @@ namespace YoloSpace
             new Dictionary<string, EnemyBot>();
 
         private HitByBulletEvent lastBulletHit;
+        private Random random = new Random();
 
-        private bool directionIndicator = true;
+        private bool isAway = false;
+        private long previousTime;
 
-        private void FollowWall()
+        private void Navigate()
         {
             switch (currentPhase)
             {
@@ -64,10 +68,57 @@ namespace YoloSpace
                     SetAhead(20);
                     break;
                 case RoboPhase.KillItWithFire:
-
+                    KillItWithFireNavigate();
                     break;
 
             }
+        }
+
+        private void KillItWithFireNavigate()
+        {
+            switch (currentKillItWithFirePhase)
+            {
+                case KillItWithFirePhase.MoveFromWall:
+                    TurnLeft(1);
+                    TurnLeft(Heading % 90);
+                    previousTime = Time;
+                    Ahead(100);
+                    currentKillItWithFirePhase = KillItWithFirePhase.Positioning;
+                    break;
+
+                case KillItWithFirePhase.Positioning:
+                    TurnRight(robots[lastBulletHit.Name].Bearing + 90);
+                    currentKillItWithFirePhase = KillItWithFirePhase.Dodge;
+                    break;
+                case KillItWithFirePhase.Dodge:
+                    if (!isAway && (Time - previousTime) > 20)
+                    {
+                        SetAhead(100);
+                        previousTime = Time;
+                        isAway = !isAway;
+                    }
+                    else if ((Time - previousTime) > 20)
+                    {
+                        SetBack(100);
+                        isAway = !isAway;
+                        previousTime = Time;
+                    }
+                    break;
+            }
+
+
+            //if (!isAway && (Time - previousTime) > 20)
+            //{
+            //    SetAhead(100);
+            //    previousTime = Time;
+            //    isAway = !isAway;
+            //}
+            //else if ((Time - previousTime) > 20)
+            //{
+            //    SetBack(100);
+            //    isAway = !isAway;
+            //    previousTime = Time;
+            //}
         }
 
         private Direction DetermineOppositeDirection(Direction direction)
@@ -121,7 +172,7 @@ namespace YoloSpace
 
         private void MeetAndGreet()
         {
-            FollowWall();
+            Navigate();
             TurnRadarLeft(45);
             Execute();
         }
@@ -132,6 +183,7 @@ namespace YoloSpace
             {
                 lastBulletHit = evnt;
                 CurrentPhase = RoboPhase.KillItWithFire;
+
             }
             else if (lastBulletHit?.Name == evnt.Name) lastBulletHit = evnt;
 
@@ -170,7 +222,7 @@ namespace YoloSpace
 
         private void KillItWithFire()
         {
-            FollowWall();
+            Navigate();
 
             if (lastBulletHit != null)
             {
