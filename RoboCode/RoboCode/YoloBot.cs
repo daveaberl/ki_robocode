@@ -52,6 +52,8 @@ namespace YoloSpace
 
         private HitByBulletEvent lastBulletHit;
 
+        private bool directionIndicator = true;
+
         private void FollowWall()
         {
             switch (currentPhase)
@@ -65,10 +67,15 @@ namespace YoloSpace
                     SetAhead(20);
                     break;
                 case RoboPhase.KillItWithFire:
-                    
                     if (DetermineDistance(CurrentDirection) < OFFSET)
                     {
-                        Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
+                        if (directionIndicator)
+                        {
+                            Ahead(DetermineDistance(CurrentDirection));
+                        } else
+                        {
+                            Back(DetermineDistance(DetermineOppositeDirection(CurrentDirection)));
+                        }
                     }
 
                     break;
@@ -121,7 +128,7 @@ namespace YoloSpace
         private void MeetAndGreet()
         {
             FollowWall();
-            TurnRadarLeft(30);
+            TurnRadarLeft(45);
             Execute();
         }
 
