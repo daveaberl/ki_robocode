@@ -10,6 +10,7 @@ namespace YoloSpace
     {
         WallRush,
         MeetAndGreet,
+        RunForestRun,
         KillItWithFire,
         KillingItSoftly
     }

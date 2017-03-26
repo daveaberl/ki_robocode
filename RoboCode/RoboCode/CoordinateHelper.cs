@@ -19,7 +19,7 @@ namespace YoloSpace
         {
             double upperVal = x1 * x2 + y1 * y2;
             double lowerVal = Math.Sqrt(x1 * x1 + y1 * y1) * Math.Sqrt(x2 * x2 + y2 * y2);
-            Console.Write("upper:"+upperVal + " lower:" + lowerVal);
+            Console.WriteLine("upper:"+upperVal + " lower:" + lowerVal);
             return Math.Acos(upperVal / lowerVal) * 180.0 / Math.PI;
         }
     }

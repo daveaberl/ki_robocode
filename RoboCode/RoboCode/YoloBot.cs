@@ -42,6 +42,10 @@ namespace YoloSpace
                 Console.WriteLine("* changed Phase to: " + value + " *");
                 if (value == RoboPhase.KillItWithFire)
                     currentKillItWithFirePhase = KillItWithFirePhase.MoveFromWall;
+                foreach (var item in robots)
+                {
+                    item.Value.Hits = 0;
+                }
                 currentPhase = value;
             }
         }
@@ -51,6 +55,7 @@ namespace YoloSpace
 
         private HitByBulletEvent lastBulletHit;
         private string targetName;
+        private string targetOfName;
         private Random random = new Random();
 
         private bool isAway = false;
@@ -156,7 +161,14 @@ namespace YoloSpace
             double enemyX = (X + Math.Sin(angle) * evnt.Distance);
             double enemyY = (Y + Math.Cos(angle) * evnt.Distance);
 
-            robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading);
+            if (robots.ContainsKey(evnt.Name))
+            {
+                robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading, robots[evnt.Name]?.Hits ?? 0);
+            }
+            else
+            {
+                robots[evnt.Name] = new EnemyBot(evnt, enemyX, enemyY, Heading, 0);
+            }
         }
 
         private void ChangeDirection()
@@ -191,6 +203,7 @@ namespace YoloSpace
             if (!robots.ContainsKey(evnt.Name)) return;
 
             var enemy = robots[evnt.Name];
+            enemy.Hits++;
 
             if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 1000) return;
 
@@ -281,6 +294,14 @@ namespace YoloSpace
         private void KillItWithFire()
         {
             Navigate();
+
+            var targetOfRobot = robots.Values.FirstOrDefault(kvp => kvp.Hits > 3);
+            if (targetOfRobot != null)
+            {
+                targetOfName = targetOfRobot.Name;
+                CurrentPhase = RoboPhase.RunForestRun;
+                return;
+            }
 
             if (targetName != null)
             {
@@ -400,6 +421,19 @@ namespace YoloSpace
             CurrentPhase = RoboPhase.MeetAndGreet;
         }
 
+        private void RunForestRun()
+        {
+            double xMiddle = BattleFieldWidth / 2;
+            double yMiddle = BattleFieldHeight / 2;
+
+            SetTankHeadingTo(CoordinateHelper.GetAngle(X, Y, xMiddle, yMiddle));
+            Ahead(200);
+
+            CurrentPhase = RoboPhase.WallRush;
+            targetName = null;
+            targetOfName = null;
+        }
+
         public override void Run()
         {
             Console.WriteLine("START");
@@ -419,6 +453,9 @@ namespace YoloSpace
                         break;
                     case RoboPhase.KillingItSoftly:
                         KillingItSoftly();
+                        break;
+                    case RoboPhase.RunForestRun:
+                        RunForestRun();
                         break;
                 }
             }
