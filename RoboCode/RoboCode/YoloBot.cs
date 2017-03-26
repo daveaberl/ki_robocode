@@ -88,7 +88,7 @@ namespace YoloSpace
                     break;
 
                 case KillItWithFirePhase.Positioning:
-                    TurnRight(robots[lastBulletHit.Name].Bearing + 90);
+                    TurnRight(robots[targetName].Bearing + 90);
                     currentKillItWithFirePhase = KillItWithFirePhase.Dodge;
                     break;
                 case KillItWithFirePhase.Dodge:
@@ -162,9 +162,22 @@ namespace YoloSpace
 
         private void MeetAndGreet()
         {
+            CheckEnemies();
             Navigate();
             TurnRadarLeft(45);
             Execute();
+        }
+
+        private void CheckEnemies()
+        {
+            foreach (var robot in robots)
+            {
+                if (robot.Value.Distance < 200)
+                {
+                    targetName = robot.Value.Name;
+                    CurrentPhase = RoboPhase.KillItWithFire;
+                }
+            }
         }
 
         public override void OnHitByBullet(HitByBulletEvent evnt)
@@ -184,7 +197,8 @@ namespace YoloSpace
 
         public override void OnRobotDeath(RobotDeathEvent evnt)
         {
-            if (lastBulletHit?.Name == evnt.Name)
+            Console.WriteLine("Died: " + evnt.Name);
+            if (targetName == evnt.Name || lastBulletHit?.Name == evnt.Name)
             {
                 lastBulletHit = null;
                 targetName = null;
