@@ -335,6 +335,7 @@ namespace YoloSpace
 
 
                 SetGunHeadingTo(degrees);
+                SetFire(1);
             }
             else
             {
