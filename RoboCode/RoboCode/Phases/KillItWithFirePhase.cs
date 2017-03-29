@@ -117,20 +117,9 @@ namespace YoloSpace.Phases
                 double p2X = enemyX - robot.X;
                 double p2Y = enemyY - robot.Y;
 
-                double degrees = CoordinateHelper.GetAngle(p1X, p1Y, p2X, p2Y);
+                //double degrees = CoordinateHelper.GetAngle(p1X, p1Y, p2X, p2Y);
+                double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, enemyX, enemyY);
 
-                if (enemyX < robot.X && enemyY > robot.Y) // 4. Quadrant
-                {
-                    degrees = 360 - degrees;
-                }
-                else if (enemyX > robot.X && enemyY < robot.Y) //2. Quadrant
-                {
-                    degrees = 180 - degrees;
-                }
-                else if (enemyX < robot.X && enemyY < robot.Y) //3. Quadrant
-                {
-                    degrees += 180;
-                }
                 Console.WriteLine(" degree: " + degrees);
 
                 robot.SetRadarHeadingTo(degrees);
@@ -139,7 +128,8 @@ namespace YoloSpace.Phases
                 robot.TurnRadarRight(90);
 
                 robot.SetGunHeadingTo(degrees);
-                robot.SetFire(1);
+
+                if (robot.GunTurnRemaining == 0) robot.SetFire(1);
             }
             else
             {

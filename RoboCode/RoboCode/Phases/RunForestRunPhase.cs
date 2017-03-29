@@ -22,7 +22,7 @@ namespace YoloSpace.Phases
             double xMiddle = robot.BattleFieldWidth / 2;
             double yMiddle = robot.BattleFieldHeight / 2;
 
-            robot.SetTankHeadingTo(robot.Heading + CoordinateHelper.GetAngle(robot.X, robot.Y, xMiddle, yMiddle));
+            robot.SetTankHeadingTo(CoordinateHelper.GetAngle(robot.X, robot.Y, xMiddle, yMiddle));
             robot.Ahead(200);
 
             robot.CurrentPhase = RoboPhase.WallRush;

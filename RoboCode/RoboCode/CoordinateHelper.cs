@@ -15,18 +15,33 @@ namespace YoloSpace
                 Y = Math.Sin((angle) * Math.PI / 180.0) * distance
             };
 
-        public static double GetAngle (double x1, double y1, double x2, double y2)
+        public static double GetAngle(double x1, double y1, double x2, double y2)
         {
-            double upperVal = x1 * x2 + y1 * y2;
-            double lowerVal = Math.Sqrt(x1 * x1 + y1 * y1) * Math.Sqrt(x2 * x2 + y2 * y2);
-            return Math.Acos(upperVal / lowerVal) * 180.0 / Math.PI;
-        }
-    }
+            double p1X = 0;
+            double p1Y = y2 - y1;
+            double p2X = x2 - x1;
+            double p2Y = y2 - y1;
 
-    public struct AngleDistanceTuple
-    {
-        public double Distance { get; set; }
-        public double Angle { get; set; }
+            double upperVal = p1X * p2X + p1Y * p2Y;
+            double lowerVal = Math.Sqrt(p1X * p1X + p1Y * p1Y) * Math.Sqrt(p2X * p2X + p2Y * p2Y);
+            double degrees = Math.Acos(upperVal / lowerVal) * 180.0 / Math.PI;
+
+
+            if (x2 < x1 && y2 > y1) // 4. Quadrant
+            {
+                degrees = 360 - degrees;
+            }
+            else if (x2 > x1 && y2 < y1) //2. Quadrant
+            {
+                degrees = 180 - degrees;
+            }
+            else if (x2 < x1 && y2 < y1) //3. Quadrant
+            {
+                degrees += 180;
+            }
+
+            return degrees;
+        }
     }
 
     public struct Point
