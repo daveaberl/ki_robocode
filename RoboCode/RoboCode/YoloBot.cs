@@ -1,6 +1,7 @@
 ﻿using Robocode;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -146,16 +147,16 @@ namespace YoloSpace
             if (targetDir > GunHeading)
             {
                 if (absDegrees > 180)
-                    TurnGunLeft(absDegrees - 180);
+                    SetTurnGunLeft(absDegrees - 180);
                 else
-                    TurnGunRight(absDegrees);
+                    SetTurnGunRight(absDegrees);
             }
             else if (targetDir < GunHeading)
             {
                 if (absDegrees > 180)
-                    TurnGunRight(absDegrees - 180);
+                    SetTurnGunRight(absDegrees - 180);
                 else
-                    TurnGunLeft(absDegrees);
+                    SetTurnGunLeft(absDegrees);
             }
         }
 
@@ -169,7 +170,7 @@ namespace YoloSpace
                 else
                     TurnRight(absDegrees);
             }
-            else if (targetDir < GunHeading)
+            else if (targetDir < Heading)
             {
                 if (absDegrees > 180)
                     TurnRight(absDegrees - 180);
@@ -188,7 +189,7 @@ namespace YoloSpace
                 else
                     TurnRadarRight(absDegrees);
             }
-            else if (targetDir < GunHeading)
+            else if (targetDir < RadarHeading)
             {
                 if (absDegrees > 180)
                     TurnRadarRight(absDegrees - 180);
@@ -299,13 +300,36 @@ namespace YoloSpace
                     return 0;
             }
         }
-        
+
         public YoloBot()
         {
             phases.Add(RoboPhase.KillItWithFire, new KillItWithFirePhase(this));
             phases.Add(RoboPhase.MeetAndGreet, new MeetAndGreetPhase(this));
             phases.Add(RoboPhase.WallRush, new WallRushPhase(this));
             phases.Add(RoboPhase.RunForestRun, new RunForestRunPhase(this));
+        }
+
+        public Point GetLastTargetCoordinates()
+        {
+            if (TargetEnemyName == null || !KnownEnemies.ContainsKey(TargetEnemyName)) return new Point();
+
+            var lastScanStatus = KnownEnemies[TargetEnemyName];
+
+            double? x = LastBulletHit?.Bullet?.X;
+            double? y = LastBulletHit?.Bullet?.Y;
+
+            if (KnownEnemies.ContainsKey(TargetEnemyName))
+            {
+                lastScanStatus = KnownEnemies[TargetEnemyName];
+
+                if (LastBulletHit == null || lastScanStatus.Time > LastBulletHit.Time)
+                {
+                    x = lastScanStatus.X;
+                    y = lastScanStatus.Y;
+                }
+            }
+
+            return new Point { X = x ?? 0, Y = y ?? 0 };
         }
 
         public override void Run()
@@ -320,6 +344,40 @@ namespace YoloSpace
             {
                 if (phases.ContainsKey(CurrentPhase))
                     phases[CurrentPhase].Run();
+            }
+        }
+
+        public override void OnPaint(IGraphics graphics)
+        {
+            base.OnPaint(graphics);
+
+            foreach (var enemy in robots.Values)
+            {
+                graphics.DrawEllipse(Pens.Green, new RectangleF
+                {
+                    Height = 50,
+                    Width = 50,
+                    X = Convert.ToSingle(enemy.X - 25),
+                    Y = Convert.ToSingle(enemy.Y - 25)
+                });
+            }
+
+            if (TargetEnemyName != null)
+            {
+                var target = GetLastTargetCoordinates();
+                graphics.DrawEllipse(Pens.Red, new RectangleF
+                {
+                    Height = 50,
+                    Width = 50,
+                    X = Convert.ToSingle(target.X - 25),
+                    Y = Convert.ToSingle(target.Y - 25)
+                });
+
+                graphics.DrawLine(Pens.Red,
+                    Convert.ToSingle(X),
+                    Convert.ToSingle(Y),
+                    Convert.ToSingle(target.X),
+                    Convert.ToSingle(target.Y));
             }
         }
     }
