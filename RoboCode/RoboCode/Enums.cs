@@ -18,7 +18,7 @@ namespace YoloSpace
 
     enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
 
-    enum KillItWithFirePhase
+    enum KillItWithFireStep
     {
         MoveFromWall,
         Positioning,

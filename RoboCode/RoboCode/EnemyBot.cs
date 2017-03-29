@@ -24,9 +24,11 @@ namespace YoloSpace
 
         public int Hits { get; set; }
 
+        public EnemyBot PreviousEntry { get; set; }
+
         public EnemyBot() { }
 
-        public EnemyBot(ScannedRobotEvent ev, double robotX, double robotY, double robotHeading, int hits)
+        public EnemyBot(ScannedRobotEvent ev, EnemyBot previous, double robotX, double robotY, double robotHeading, int hits)
         {
             Name = ev.Name;
             Energy = ev.Energy;
@@ -37,6 +39,7 @@ namespace YoloSpace
             X = robotX;
             Y = robotY;
             Hits = hits;
+            PreviousEntry = previous;
         }
     }
 }
