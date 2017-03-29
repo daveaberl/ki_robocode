@@ -150,7 +150,7 @@ namespace YoloSpace
                 else
                     TurnGunRight(absDegrees);
             }
-            else
+            else if (targetDir < GunHeading)
             {
                 if (absDegrees > 180)
                     TurnGunRight(absDegrees - 180);
@@ -169,7 +169,7 @@ namespace YoloSpace
                 else
                     TurnRight(absDegrees);
             }
-            else
+            else if (targetDir < GunHeading)
             {
                 if (absDegrees > 180)
                     TurnRight(absDegrees - 180);
@@ -188,7 +188,7 @@ namespace YoloSpace
                 else
                     TurnRadarRight(absDegrees);
             }
-            else
+            else if (targetDir < GunHeading)
             {
                 if (absDegrees > 180)
                     TurnRadarRight(absDegrees - 180);

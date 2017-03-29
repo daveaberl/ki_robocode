@@ -19,7 +19,6 @@ namespace YoloSpace.Phases
             this.robot = robot;
         }
 
-
         private void Navigate()
         {
             switch (currentKillItWithFirePhase)
