@@ -48,6 +48,27 @@ namespace YoloSpace.Phases
             }
         }
 
+        public void Shoot(EnemyBot target)
+        {
+            Point optimizedTarget = robot.GetLastTargetCoordinates(true);
+
+            // TODO: Winkelfunktionen zum vorhersagen der Position :P
+
+            if (Math.Abs(target.X - optimizedTarget.X) > 60 || 
+                Math.Abs(target.Y - optimizedTarget.Y) > 60)
+            {
+                optimizedTarget.X = target.X;
+                optimizedTarget.Y = target.Y;
+            }
+
+            double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, optimizedTarget.X, optimizedTarget.Y);
+            robot.SetGunHeadingTo(degrees);
+            robot.Execute();
+
+            if (robot.GunTurnRemaining < 3)
+                robot.Fire(1);
+        }
+
         public void Run()
         {
             robot.BodyColor = System.Drawing.Color.Red;
@@ -71,7 +92,7 @@ namespace YoloSpace.Phases
                 EnemyBot lastScanStatus = null;
                 double? bearing = robot.LastBulletHit?.Bearing;
                 long? time = robot.LastBulletHit?.Time;
-                
+
                 if (robot.KnownEnemies.ContainsKey(robot.TargetEnemyName))
                 {
                     lastScanStatus = robot.KnownEnemies[robot.TargetEnemyName];
@@ -99,7 +120,7 @@ namespace YoloSpace.Phases
                 }
 
                 var pos = robot.GetLastTargetCoordinates();
-                
+
                 double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
 
                 Console.WriteLine(" degree: " + degrees);
@@ -109,10 +130,8 @@ namespace YoloSpace.Phases
 
                 pos = robot.GetLastTargetCoordinates();
                 degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
-                
-                robot.SetGunHeadingTo(degrees);
 
-                robot.SetFire(1);
+                if (lastScanStatus != null) Shoot(lastScanStatus);
             }
             else
             {

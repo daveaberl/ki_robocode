@@ -236,6 +236,9 @@ namespace YoloSpace
             Console.WriteLine("Died: " + evnt.Name);
             if (targetName == evnt.Name || lastBulletHit?.Name == evnt.Name)
             {
+                if (robots.ContainsKey(evnt.Name))
+                    robots.Remove(evnt.Name);
+
                 lastBulletHit = null;
                 targetName = null;
 
@@ -276,11 +279,17 @@ namespace YoloSpace
 
             if (robots.ContainsKey(evnt.Name))
             {
-                robots[evnt.Name] = new EnemyBot(evnt, robots[evnt.Name], enemyX, enemyY, Heading, robots[evnt.Name]?.Hits ?? 0);
+                robots[evnt.Name] = new EnemyBot(evnt, robots[evnt.Name], enemyX, enemyY, Heading, robots[evnt.Name]?.Hits ?? 0)
+                {
+                    IsTarget = targetName == evnt.Name
+                };
             }
             else
             {
-                robots[evnt.Name] = new EnemyBot(evnt, null, enemyX, enemyY, Heading, 0);
+                robots[evnt.Name] = new EnemyBot(evnt, null, enemyX, enemyY, Heading, 0)
+                {
+                    IsTarget = targetName == evnt.Name
+                };
             }
         }
 
@@ -309,11 +318,16 @@ namespace YoloSpace
             phases.Add(RoboPhase.RunForestRun, new RunForestRunPhase(this));
         }
 
-        public Point GetLastTargetCoordinates()
+        private bool BoundCompare(double value, double compareToValue, double bounds)
+            => ((value - bounds) <= compareToValue && compareToValue <= (value + bounds));
+
+        public Point GetLastTargetCoordinates(bool tryOptimize = false)
         {
             if (TargetEnemyName == null || !KnownEnemies.ContainsKey(TargetEnemyName)) return new Point();
 
             var lastScanStatus = KnownEnemies[TargetEnemyName];
+
+            if ((lastScanStatus?.Energy ?? 0) == 0) lastScanStatus = null;
 
             double? x = LastBulletHit?.Bullet?.X;
             double? y = LastBulletHit?.Bullet?.Y;
@@ -326,6 +340,34 @@ namespace YoloSpace
                 {
                     x = lastScanStatus.X;
                     y = lastScanStatus.Y;
+                }
+
+                if (tryOptimize)
+                {
+                    EnemyBot curEnemy = lastScanStatus;
+                    List<EnemyBot> interesting = new List<EnemyBot>();
+
+                    for (var i = 0; i < 100; i++)
+                    {
+                        interesting.Add(curEnemy);
+
+                        if (!curEnemy.IsTarget) break;
+                        if (curEnemy.PreviousEntry == null) break;
+                        curEnemy = curEnemy.PreviousEntry;
+                    }
+
+                    var target = interesting.Select(i => new
+                    {
+                        Amount = interesting.Count(i2 => BoundCompare(i.X, i2.X, 10) && BoundCompare(i.Y, i2.Y, 10)),
+                        X = i.X,
+                        Y = i.Y
+                    }).ToArray();
+
+                    if (target.Max(t => t.Amount) > 10)
+                    {
+                        x = target.OrderByDescending(t => t.Amount).FirstOrDefault()?.X;
+                        y = target.OrderByDescending(t => t.Amount).FirstOrDefault()?.Y;
+                    }
                 }
             }
 
@@ -364,7 +406,22 @@ namespace YoloSpace
 
             if (TargetEnemyName != null)
             {
-                var target = GetLastTargetCoordinates();
+                var target = GetLastTargetCoordinates(true);
+                graphics.DrawEllipse(Pens.Yellow, new RectangleF
+                {
+                    Height = 50,
+                    Width = 50,
+                    X = Convert.ToSingle(target.X - 25),
+                    Y = Convert.ToSingle(target.Y - 25)
+                });
+
+                graphics.DrawLine(Pens.Yellow,
+                    Convert.ToSingle(X),
+                    Convert.ToSingle(Y),
+                    Convert.ToSingle(target.X),
+                    Convert.ToSingle(target.Y));
+
+                target = GetLastTargetCoordinates();
                 graphics.DrawEllipse(Pens.Red, new RectangleF
                 {
                     Height = 50,
