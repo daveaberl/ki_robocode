@@ -386,6 +386,8 @@ namespace YoloSpace
             {
                 if (phases.ContainsKey(CurrentPhase))
                     phases[CurrentPhase].Run();
+
+                Execute();
             }
         }
 
