@@ -41,7 +41,10 @@ namespace YoloSpace.Phases
         {
             if (robot.Others == 1)
             {
-                robot.CurrentPhase = RoboPhase.KillItWithFire;
+                robot.TargetEnemyName = robot.KnownEnemies.FirstOrDefault().Value?.Name;
+
+                if (robot.TargetEnemyName != null)
+                    robot.CurrentPhase = RoboPhase.KillItWithFire;
             }
             else
             {
