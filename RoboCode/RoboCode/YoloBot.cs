@@ -388,6 +388,23 @@ namespace YoloSpace
                 {
                     if (phases[CurrentPhase] is IAdvancedPhase)
                     {
+                        var oldPhase = CurrentPhase;
+                        IAdvancedPhase phase = (IAdvancedPhase)phases[oldPhase];
+
+                        var newPhase = phase.Tick();
+
+                        if (CurrentPhase != newPhase)
+                        {
+                            phase.DeactivatePhase(newPhase);
+
+                            if (phases[oldPhase] is IAdvancedPhase)
+                            {
+                                phase = (IAdvancedPhase)phases[newPhase];
+                                phase.ActivatePhase(oldPhase);
+                            }
+
+                            CurrentPhase = newPhase;
+                        }
                     }
                     else
                         phases[CurrentPhase].Run();
