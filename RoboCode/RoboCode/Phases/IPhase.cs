@@ -10,4 +10,39 @@ namespace YoloSpace.Phases
     {
         void Run();
     }
+
+    interface IAdvancedPhase : IPhase
+    {
+        void ActivatePhase(RoboPhase previousPhase);
+        void DeactivatePhase(RoboPhase nextPhase);
+
+        void Navigate();
+
+        RoboPhase Tick();
+    }
+
+    abstract class AdvancedPhase : IAdvancedPhase
+    {
+        protected YoloBot Robot { get; set; }
+
+        public AdvancedPhase(YoloBot robot)
+        {
+            Robot = robot;
+        }
+
+        public virtual void ActivatePhase(RoboPhase previousPhase) { }
+
+        public virtual void DeactivatePhase(RoboPhase nextPhase) { }
+
+        public virtual void Navigate() { }
+
+        public abstract void Run();
+
+        public virtual RoboPhase Tick()
+        {
+            Run();
+
+            return Robot.CurrentPhase;
+        }
+    }
 }

@@ -7,41 +7,41 @@ using System.Threading.Tasks;
 
 namespace YoloSpace.Phases
 {
-    class KillItWithFirePhase : IPhase
+    class KillItWithFirePhase : AdvancedPhase
     {
         private KillItWithFireStep currentKillItWithFirePhase;
-        private YoloBot robot;
         private bool isAway;
 
-        public KillItWithFirePhase(YoloBot robot)
+        private long lastReached = 0;
+
+        public KillItWithFirePhase(YoloBot Robot): base(Robot)
         {
-            this.robot = robot;
         }
 
-        private void Navigate()
+        public override void Navigate()
         {
             switch (currentKillItWithFirePhase)
             {
                 case KillItWithFireStep.MoveFromWall:
-                    robot.TurnLeft(1);
-                    robot.TurnLeft(robot.Heading % 90);
-                    robot.Ahead(100);
+                    Robot.TurnLeft(1);
+                    Robot.TurnLeft(Robot.Heading % 90);
+                    Robot.Ahead(100);
                     currentKillItWithFirePhase = KillItWithFireStep.Positioning;
                     break;
 
                 case KillItWithFireStep.Positioning:
-                    robot.TurnRight(robot.KnownEnemies[robot.TargetEnemyName].Bearing + 90);
+                    Robot.TurnRight(Robot.KnownEnemies[Robot.TargetEnemyName].Bearing + 90);
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
-                    if (!isAway && robot.DistanceRemaining == 0)
+                    if (!isAway && Robot.DistanceRemaining == 0)
                     {
-                        robot.SetAhead(100);
+                        Robot.SetAhead(100);
                         isAway = !isAway;
                     }
-                    else if (robot.DistanceRemaining == 0)
+                    else if (Robot.DistanceRemaining == 0)
                     {
-                        robot.SetBack(100);
+                        Robot.SetBack(100);
                         isAway = !isAway;
                     }
                     break;
@@ -50,7 +50,7 @@ namespace YoloSpace.Phases
 
         public void Shoot(EnemyBot target)
         {
-            Point optimizedTarget = robot.GetLastTargetCoordinates(true);
+            Point optimizedTarget = Robot.GetLastTargetCoordinates(true);
 
             // TODO: Winkelfunktionen zum vorhersagen der Position :P
 
@@ -61,43 +61,43 @@ namespace YoloSpace.Phases
                 optimizedTarget.Y = target.Y;
             }
 
-            double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, optimizedTarget.X, optimizedTarget.Y);
-            robot.SetGunHeadingTo(degrees);
-            robot.Execute();
+            double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, optimizedTarget.X, optimizedTarget.Y);
+            Robot.SetGunHeadingTo(degrees);
+            Robot.Execute();
 
-            if (robot.GunTurnRemaining < 3)
-                robot.Fire(1);
+            if (Robot.GunTurnRemaining < 3)
+                Robot.Fire(1);
         }
 
-        public void Run()
+        public override void Run()
         {
-            robot.BodyColor = System.Drawing.Color.Red;
-            if (robot.Others == 1)
+            Robot.BodyColor = System.Drawing.Color.Red;
+            if (Robot.Others == 1)
             {
-                robot.BodyColor = System.Drawing.Color.Transparent;
+                Robot.BodyColor = System.Drawing.Color.Transparent;
             }
 
             Navigate();
 
-            var targetOfRobot = robot.KnownEnemies.Values.FirstOrDefault(kvp => kvp.Hits > 3);
+            var targetOfRobot = Robot.KnownEnemies.Values.FirstOrDefault(kvp => kvp.Hits > 3);
             if (targetOfRobot != null)
             {
-                robot.AttackerEnemyName = targetOfRobot.Name;
-                robot.CurrentPhase = RoboPhase.RunForestRun;
+                Robot.AttackerEnemyName = targetOfRobot.Name;
+                Robot.CurrentPhase = RoboPhase.RunForestRun;
                 return;
             }
 
-            if (robot.TargetEnemyName != null)
+            if (Robot.TargetEnemyName != null)
             {
                 EnemyBot lastScanStatus = null;
-                double? bearing = robot.LastBulletHit?.Bearing;
-                long? time = robot.LastBulletHit?.Time;
+                double? bearing = Robot.LastBulletHit?.Bearing;
+                long? time = Robot.LastBulletHit?.Time;
 
-                if (robot.KnownEnemies.ContainsKey(robot.TargetEnemyName))
+                if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
-                    lastScanStatus = robot.KnownEnemies[robot.TargetEnemyName];
+                    lastScanStatus = Robot.KnownEnemies[Robot.TargetEnemyName];
 
-                    if (robot.LastBulletHit == null || lastScanStatus.Time > robot.LastBulletHit.Time)
+                    if (Robot.LastBulletHit == null || lastScanStatus.Time > Robot.LastBulletHit.Time)
                     {
                         bearing = lastScanStatus.Bearing;
                         time = lastScanStatus.Time;
@@ -106,38 +106,38 @@ namespace YoloSpace.Phases
 
                 if (!bearing.HasValue)
                 {
-                    robot.CurrentPhase = RoboPhase.WallRush;
-                    robot.TargetEnemyName = null;
+                    Robot.CurrentPhase = RoboPhase.WallRush;
+                    Robot.TargetEnemyName = null;
                     return;
                 }
 
-                if (robot.Time - time >= 300 && robot.Others > 1)
+                if (Robot.Time - time >= 300 && Robot.Others > 1)
                 {
-                    robot.LastBulletHit = null;
-                    robot.TargetEnemyName = null;
-                    robot.CurrentPhase = RoboPhase.WallRush;
+                    Robot.LastBulletHit = null;
+                    Robot.TargetEnemyName = null;
+                    Robot.CurrentPhase = RoboPhase.WallRush;
                     return;
                 }
 
-                var pos = robot.GetLastTargetCoordinates();
+                var pos = Robot.GetLastTargetCoordinates();
 
-                double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
+                double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, pos.X, pos.Y);
 
                 Console.WriteLine(" degree: " + degrees);
 
-                robot.SetRadarHeadingTo(degrees - 45);
-                robot.SetRadarHeadingTo(degrees + 45);
+                Robot.SetRadarHeadingTo(degrees - 45);
+                Robot.SetRadarHeadingTo(degrees + 45);
 
-                pos = robot.GetLastTargetCoordinates();
-                degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
+                pos = Robot.GetLastTargetCoordinates();
+                degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, pos.X, pos.Y);
 
                 if (lastScanStatus != null) Shoot(lastScanStatus);
             }
             else
             {
-                robot.CurrentPhase = RoboPhase.WallRush;
-                robot.TargetEnemyName = null;
-                robot.LastBulletHit = null;
+                Robot.CurrentPhase = RoboPhase.WallRush;
+                Robot.TargetEnemyName = null;
+                Robot.LastBulletHit = null;
             }
         }
     }

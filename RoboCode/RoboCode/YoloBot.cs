@@ -385,7 +385,13 @@ namespace YoloSpace
             while (true)
             {
                 if (phases.ContainsKey(CurrentPhase))
-                    phases[CurrentPhase].Run();
+                {
+                    if (phases[CurrentPhase] is IAdvancedPhase)
+                    {
+                    }
+                    else
+                        phases[CurrentPhase].Run();
+                }
 
                 Execute();
             }
