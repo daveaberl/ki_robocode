@@ -9,12 +9,14 @@ namespace YoloSpace.Phases
 {
     class KillItWithFirePhase : AdvancedPhase
     {
+        private const int MAX_DISTANCE = 400;
+        private const int WALL_OFFSET = 30;
+
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
-
         private long lastReached = 0;
 
-        public KillItWithFirePhase(YoloBot Robot): base(Robot)
+        public KillItWithFirePhase(YoloBot Robot) : base(Robot)
         {
         }
 
@@ -34,18 +36,41 @@ namespace YoloSpace.Phases
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
-                    if (!isAway && Robot.DistanceRemaining == 0)
+                    bool wallDanger = DetermineWallDanger();
+                    if ((!isAway && Robot.DistanceRemaining == 0) || (!isAway && !wallDanger))
                     {
                         Robot.SetAhead(100);
                         isAway = !isAway;
                     }
-                    else if (Robot.DistanceRemaining == 0)
+                    else if (Robot.DistanceRemaining == 0 || !wallDanger)
                     {
                         Robot.SetBack(100);
                         isAway = !isAway;
                     }
                     break;
             }
+
+            if (Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
+            {
+                Robot.CurrentPhase = RoboPhase.WallRush;
+            }
+        }
+
+        private bool DetermineWallDanger()
+        {
+            if ((Robot.Heading == 0 || Robot.Heading == 180) && (Robot.Y < WALL_OFFSET || Robot.Y > Robot.BattleFieldHeight - WALL_OFFSET))
+            {
+                return false;
+            }
+            else if ((Robot.Heading == 90 || Robot.Heading == 270) && (Robot.X < WALL_OFFSET || Robot.X > Robot.BattleFieldWidth - WALL_OFFSET))
+            {
+                return false;
+            }
+            else if (Robot.Y < WALL_OFFSET || Robot.Y > Robot.BattleFieldHeight - WALL_OFFSET || Robot.X < WALL_OFFSET || Robot.X > Robot.BattleFieldWidth - WALL_OFFSET)
+            {
+                return false;
+            }
+            return true;
         }
 
         public void Shoot(EnemyBot target)
@@ -54,7 +79,7 @@ namespace YoloSpace.Phases
 
             // TODO: Winkelfunktionen zum vorhersagen der Position :P
 
-            if (Math.Abs(target.X - optimizedTarget.X) > 60 || 
+            if (Math.Abs(target.X - optimizedTarget.X) > 60 ||
                 Math.Abs(target.Y - optimizedTarget.Y) > 60)
             {
                 optimizedTarget.X = target.X;
