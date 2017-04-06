@@ -42,6 +42,14 @@ namespace YoloSpace
 
             return degrees;
         }
+
+        public static double GetDistance(Point p1, Point p2)
+            => GetDistance(p1.X, p1.Y, p2.X, p2.Y);
+        public static double GetDistance(double x1, double y1, double x2, double y2)
+            => Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
+
+        public static double Deg2Rad(double deg) => deg / 180 * Math.PI;
+        public static double Rad2Deg(double rad) => rad * 180 / Math.PI;
     }
 
     public struct Point

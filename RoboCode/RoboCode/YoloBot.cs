@@ -15,6 +15,7 @@ namespace YoloSpace
         public const double OFFSET = 40;
 
         private Dictionary<RoboPhase, IPhase> phases = new Dictionary<RoboPhase, IPhase>();
+        public Point Target { get; set; }
 
         public Direction CurrentDirection
         {
@@ -425,15 +426,15 @@ namespace YoloSpace
                 {
                     Height = 50,
                     Width = 50,
-                    X = Convert.ToSingle(target.X - 25),
-                    Y = Convert.ToSingle(target.Y - 25)
+                    X = Convert.ToSingle(Target.X - 25),
+                    Y = Convert.ToSingle(Target.Y - 25)
                 });
 
                 graphics.DrawLine(Pens.Yellow,
                     Convert.ToSingle(X),
                     Convert.ToSingle(Y),
-                    Convert.ToSingle(target.X),
-                    Convert.ToSingle(target.Y));
+                    Convert.ToSingle(Target.X),
+                    Convert.ToSingle(Target.Y));
 
                 target = GetLastTargetCoordinates();
                 graphics.DrawEllipse(Pens.Red, new RectangleF
