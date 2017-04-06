@@ -244,14 +244,14 @@ namespace YoloSpace
 
             if (Others == 1) TargetEnemyName = evnt.Name;
 
-            if (!robots.ContainsKey(evnt.Name))
-            {
-                Console.WriteLine("* found new enemy: " + evnt.Name);
-            }
-            else
-            {
-                Console.WriteLine("* found enemy again: " + evnt.Name);
-            }
+            //if (!robots.ContainsKey(evnt.Name))
+            //{
+            //    Console.WriteLine("* found new enemy: " + evnt.Name);
+            //}
+            //else
+            //{
+            //    Console.WriteLine("* found enemy again: " + evnt.Name);
+            //}
 
             double angleToEnemy = evnt.Bearing;
 

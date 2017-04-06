@@ -81,8 +81,22 @@ namespace YoloSpace.Phases
         }
 
 
-        private double CalculatePower()
+        private double CalculatePower(EnemyBot target)
         {
+            Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
+
+            if (target.Distance < 100)
+                return 3;
+
+            if (target.Distance < 180)
+                return 2.5;
+
+            if (target.Distance < 230)
+                return 2;
+
+            if (target.Distance < 270)
+                return 1.5;
+
             return 1;
         }
 
@@ -148,7 +162,8 @@ namespace YoloSpace.Phases
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
-                    double power = CalculatePower();
+                    double power = CalculatePower(target);
+                    Console.WriteLine($"power: {power}");
                     Aim(target, power);
                     Shoot(target, power);
                 }
