@@ -200,13 +200,13 @@ namespace YoloSpace
         {
             base.OnBulletHit(evnt);
 
-            if (robots.ContainsKey(evnt.VictimName))
-            {
-                robots[evnt.VictimName].X = evnt.Bullet.X;
-                robots[evnt.VictimName].Y = evnt.Bullet.Y;
-                robots[evnt.VictimName].Time = evnt.Time;
-                robots[evnt.VictimName].Energy = evnt.VictimEnergy;
-            }
+            //if (robots.ContainsKey(evnt.VictimName))
+            //{
+            //    robots[evnt.VictimName].X = evnt.Bullet.X;
+            //    robots[evnt.VictimName].Y = evnt.Bullet.Y;
+            //    robots[evnt.VictimName].Time = evnt.Time;
+            //    robots[evnt.VictimName].Energy = evnt.VictimEnergy;
+            //}
         }
         public override void OnHitByBullet(HitByBulletEvent evnt)
         {

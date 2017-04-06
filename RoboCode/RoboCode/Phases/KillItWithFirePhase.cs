@@ -133,7 +133,7 @@ namespace YoloSpace.Phases
                 Robot.BodyColor = System.Drawing.Color.Transparent;
             }
 
-            // Navigate();
+            Navigate();
 
             var targetOfRobot = Robot.KnownEnemies.Values.FirstOrDefault(kvp => kvp.Hits > 3);
             if (targetOfRobot != null)
