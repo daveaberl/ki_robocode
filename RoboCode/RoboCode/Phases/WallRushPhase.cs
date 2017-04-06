@@ -6,22 +6,26 @@ using System.Threading.Tasks;
 
 namespace YoloSpace.Phases
 {
-    class WallRushPhase : IPhase
+    class WallRushPhase : AdvancedPhase
     {
-        private YoloBot robot;
-
-        public WallRushPhase(YoloBot robot)
+        public WallRushPhase(YoloBot Robot) : base(Robot)
         {
-            this.robot = robot;
         }
 
-        public void Run()
+        public override void ActivatePhase(RoboPhase previousPhase)
         {
-            robot.BodyColor = System.Drawing.Color.Black;
+            Robot.BodyColor = System.Drawing.Color.Black;
+            double distance = Robot.DetermineDistance(Robot.CurrentDirection);
+            Robot.SetAhead(distance - YoloBot.OFFSET);
+            Robot.Execute();
+        }
 
-            double distance = robot.DetermineDistance(robot.CurrentDirection);
-            robot.Ahead(distance - YoloBot.OFFSET);
-            robot.CurrentPhase = RoboPhase.MeetAndGreet;
+        public override void Run()
+        {
+            if (Robot.DistanceRemaining <= 0)
+            {
+                Robot.CurrentPhase = RoboPhase.MeetAndGreet;
+            }
         }
     }
 }

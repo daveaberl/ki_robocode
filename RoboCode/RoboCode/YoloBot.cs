@@ -132,13 +132,6 @@ namespace YoloSpace
             }
         }
 
-        private void ChangeDirection()
-        {
-            Console.WriteLine("Run away!");
-            TurnLeft(1);
-            CurrentPhase = RoboPhase.WallRush;
-        }
-
         public void SetGunHeadingTo(double targetDir)
         {
             double absDegrees = Math.Abs(targetDir - GunHeading);
@@ -250,13 +243,6 @@ namespace YoloSpace
             base.OnScannedRobot(evnt);
 
             if (Others == 1) TargetEnemyName = evnt.Name;
-
-            switch (CurrentPhase)
-            {
-                case RoboPhase.WallRush:
-                    ChangeDirection();
-                    break;
-            }
 
             if (!robots.ContainsKey(evnt.Name))
             {
@@ -382,10 +368,13 @@ namespace YoloSpace
         public override void Run()
         {
             Console.WriteLine("START");
-            BodyColor = System.Drawing.Color.Black;
-            GunColor = System.Drawing.Color.White;
-            RadarColor = System.Drawing.Color.White;
+            BodyColor = Color.Black;
+            GunColor = Color.White;
+            RadarColor = Color.White;
             CurrentPhase = RoboPhase.WallRush;
+            RoboPhase changePhase = RoboPhase.UnknownPhase;
+
+            IsAdjustGunForRobotTurn = true;
 
             while (true)
             {
@@ -394,25 +383,23 @@ namespace YoloSpace
                     if (phases[CurrentPhase] is IAdvancedPhase)
                     {
                         IAdvancedPhase phase = (IAdvancedPhase)phases[CurrentPhase];
-                        var newPhase = phase.Tick();
-
-                        if (CurrentPhase != newPhase)
+                        if (CurrentPhase != changePhase)
                         {
-                            phase.DeactivatePhase(CurrentPhase);
-
-                            if (phases[CurrentPhase] is IAdvancedPhase)
-                            {
-                                phase = (IAdvancedPhase)phases[newPhase];
-                                phase.ActivatePhase(newPhase);
-                            }
-
-                            CurrentPhase = newPhase;
+                            phase.ActivatePhase(changePhase);
+                            changePhase = CurrentPhase;
+                        }
+                        phase.Tick();
+                        if (CurrentPhase != changePhase)
+                        {
+                            phase.DeactivatePhase(changePhase);
                         }
                     }
                     else
+                    {
+                        changePhase = CurrentPhase;
                         phases[CurrentPhase].Run();
+                    }
                 }
-
                 Execute();
             }
         }

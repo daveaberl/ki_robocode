@@ -14,7 +14,6 @@ namespace YoloSpace.Phases
 
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
-        private long lastReached = 0;
 
         public KillItWithFirePhase(YoloBot Robot) : base(Robot)
         {
@@ -145,10 +144,10 @@ namespace YoloSpace.Phases
 
             if (Robot.TargetEnemyName != null)
             {
+                Scan();
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
-                    Scan();
                     double power = CalculatePower();
                     Aim(target, power);
                     Shoot(target, power);
