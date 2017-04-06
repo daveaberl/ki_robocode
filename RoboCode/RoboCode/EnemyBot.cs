@@ -18,6 +18,7 @@ namespace YoloSpace
         public double Velocity { get; set; }
 
         public double Heading { get; set; }
+        public double HeadingRad { get; set; }
         public double Bearing { get; set; }
         public double Distance { get; set; }
 
@@ -36,6 +37,7 @@ namespace YoloSpace
             Name = ev.Name;
             Energy = ev.Energy;
             Heading = ev.Heading;
+            HeadingRad = ev.HeadingRadians;
             Time = ev.Time;
             Bearing = ev.Bearing;
             Distance = ev.Distance;

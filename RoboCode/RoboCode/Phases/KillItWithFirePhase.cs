@@ -89,28 +89,28 @@ namespace YoloSpace.Phases
         private void Aim(EnemyBot target, double power)
         {
             double distance = CoordinateHelper.GetDistance(target.X, target.Y, Robot.X, Robot.Y);
-            double pTime = Robot.Time + (distance / (20 - 3 * power));
+            double pTime = Robot.Time + (distance / Rules.GetBulletSpeed(power));
             double diff = pTime - target.Time;
 
             if (target.PreviousEntry != null)
             {
-                double hCPT = CoordinateHelper.Deg2Rad((target.Heading - target.PreviousEntry.Heading)) / (target.Time - target.PreviousEntry.Time);
+                double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
                 if (Math.Abs(hCPT) > 0.00001)
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;
                     Robot.Target = new Point
                     {
-                        X = (Math.Cos(CoordinateHelper.Deg2Rad(target.Heading)) * radius) - (Math.Cos(CoordinateHelper.Deg2Rad(target.Heading) + toTargetHead) * radius),
-                        Y = (Math.Sin(CoordinateHelper.Deg2Rad(target.Heading) + toTargetHead) * radius) - (Math.Sin(CoordinateHelper.Deg2Rad(target.Heading)) * radius),
+                        X = (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
+                        Y = (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
                     };
                     return;
                 }
             }
             Robot.Target = new Point
             {
-                X = target.X + Math.Sin(CoordinateHelper.Deg2Rad(target.Heading)) * target.Velocity * diff,
-                Y = target.Y + Math.Cos(CoordinateHelper.Deg2Rad(target.Heading)) * target.Velocity * diff
+                X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
+                Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
             };
         }
 
@@ -153,6 +153,7 @@ namespace YoloSpace.Phases
                     Shoot(target, power);
                 }
 
+                Robot.Execute();
             }
             else
             {
