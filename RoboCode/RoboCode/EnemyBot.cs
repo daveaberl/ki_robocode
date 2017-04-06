@@ -15,6 +15,7 @@ namespace YoloSpace
         public double Y { get; set; }
 
         public double Energy { get; set; }
+        public double Velocity { get; set; }
 
         public double Heading { get; set; }
         public double Bearing { get; set; }
@@ -42,6 +43,7 @@ namespace YoloSpace
             Y = robotY;
             Hits = hits;
             PreviousEntry = previous;
+            Velocity = ev.Velocity;
         }
     }
 }

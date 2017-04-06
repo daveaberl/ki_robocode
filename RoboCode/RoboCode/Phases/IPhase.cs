@@ -16,8 +16,6 @@ namespace YoloSpace.Phases
         void ActivatePhase(RoboPhase previousPhase);
         void DeactivatePhase(RoboPhase nextPhase);
 
-        void Navigate();
-
         RoboPhase Tick();
     }
 
@@ -33,8 +31,6 @@ namespace YoloSpace.Phases
         public virtual void ActivatePhase(RoboPhase previousPhase) { }
 
         public virtual void DeactivatePhase(RoboPhase nextPhase) { }
-
-        public virtual void Navigate() { }
 
         public abstract void Run();
 

@@ -15,6 +15,7 @@ namespace YoloSpace
         public const double OFFSET = 40;
 
         private Dictionary<RoboPhase, IPhase> phases = new Dictionary<RoboPhase, IPhase>();
+        public Point Target { get; set; }
 
         public Direction CurrentDirection
         {
