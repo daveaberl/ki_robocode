@@ -146,8 +146,8 @@ namespace YoloSpace.Phases
             {
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
-                    var target = Robot.KnownEnemies[Robot.TargetEnemyName];
                     Scan();
+                    var target = Robot.KnownEnemies[Robot.TargetEnemyName];
                     double power = CalculatePower();
                     Aim(target, power);
                     Shoot(target, power);
