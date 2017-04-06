@@ -98,18 +98,38 @@ namespace YoloSpace.Phases
                     return;
                 }
 
-                var pos = robot.GetLastTargetCoordinates();
+                var targetPos = robot.GetLastTargetCoordinates();
                 
-                double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
-
-                Console.WriteLine(" degree: " + degrees);
-
+                double degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, targetPos.X, targetPos.Y);
+                Console.WriteLine($"First angle (radar): {degrees}");
                 robot.SetRadarHeadingTo(degrees - 45);
                 robot.SetRadarHeadingTo(degrees + 45);
 
-                pos = robot.GetLastTargetCoordinates();
-                degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, pos.X, pos.Y);
-                
+                //RobotStatus oldStatus = null;
+                //var newStatus = robot.StatusHistory[robot.StatusHistory.Count - 1];
+                //for (int i = robot.StatusHistory.Count - 2; i >= 0; i--)
+                //{
+                //    if(newStatus.X != robot.StatusHistory[i].X && newStatus.Y != robot.StatusHistory[i].Y)
+                //    {
+                //        oldStatus = robot.StatusHistory[i];
+                //        break;
+                //    }
+
+                //}
+                //var invertedMovementPos = new Point() { X = oldStatus.X - newStatus.X, Y = oldStatus.Y - newStatus.Y };
+                targetPos = robot.GetLastTargetCoordinates();
+                //var targetWithMovementPos = new Point() { X = targetPos.X + invertedMovementPos.X, Y = targetPos.Y + invertedMovementPos.Y };
+                degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, targetPos.X, targetPos.Y);
+                Console.WriteLine($"Second angle (gun + radar): {degrees}, X/Y {robot.X}/{robot.Y}, target X/Y {targetPos.X}/{targetPos.Y}");
+
+                robot.SetGunHeadingTo(degrees);
+
+                robot.SetRadarHeadingTo(degrees - 10);
+                robot.SetRadarHeadingTo(degrees + 10);
+                targetPos = robot.GetLastTargetCoordinates();
+                degrees = CoordinateHelper.GetAngle(robot.X, robot.Y, targetPos.X, targetPos.Y);
+                Console.WriteLine($"Third angle (gun): {degrees}");
+
                 robot.SetGunHeadingTo(degrees);
 
                 robot.SetFire(1);

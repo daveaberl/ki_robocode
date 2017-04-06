@@ -284,6 +284,13 @@ namespace YoloSpace
             }
         }
 
+        public List<RobotStatus> StatusHistory { get; set; } = new List<RobotStatus>();
+        public override void OnStatus(StatusEvent e)
+        {
+            StatusHistory.Add(e.Status);
+            base.OnStatus(e);
+        }
+
         public double DetermineDistance(Direction direction)
         {
             switch (direction)
