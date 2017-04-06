@@ -39,20 +39,20 @@ namespace YoloSpace.Phases
 
         public void Run()
         {
-            
-            //if (robot.Others == 1)
-            //{
-            //    robot.CurrentPhase = RoboPhase.KillItWithFire;
-            //}
-            //else
-            //{
-            //    robot.BodyColor = System.Drawing.Color.Orange;
+            robot.BodyColor = System.Drawing.Color.Orange;
 
-                CheckEnemies();
-                Navigate();
-                robot.TurnRadarLeft(45);
-                robot.Execute();
-            //}
+            CheckEnemies();
+            Navigate();
+            robot.TurnRadarLeft(45);
+            robot.Execute();
+
+            if (robot.Others == 1)
+            {
+                robot.TargetEnemyName = robot.KnownEnemies.FirstOrDefault().Value?.Name;
+
+                if (robot.TargetEnemyName != null)
+                    robot.CurrentPhase = RoboPhase.KillItWithFire;
+            }
         }
     }
 }

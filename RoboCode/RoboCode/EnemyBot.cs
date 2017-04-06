@@ -20,6 +20,8 @@ namespace YoloSpace
         public double Bearing { get; set; }
         public double Distance { get; set; }
 
+        public bool IsTarget { get; set; }
+
         public long Time { get; set; }
 
         public int Hits { get; set; }

@@ -61,24 +61,21 @@ namespace YoloSpace
             => robots;
         public string TargetEnemyName
         {
-            get => targetName;
-            set => targetName = value;
+            get;
+            set;
         }
         public string AttackerEnemyName
         {
-            get => targetOfName;
-            set => targetOfName = value;
+            get;
+            set;
         }
 
         public HitByBulletEvent LastBulletHit
         {
-            get => lastBulletHit;
-            set => lastBulletHit = value;
+            get;
+            set;
         }
 
-        private HitByBulletEvent lastBulletHit;
-        private string targetName;
-        private string targetOfName;
         private Random random = new Random();
 
         private bool isAway = false;
@@ -97,7 +94,7 @@ namespace YoloSpace
                     break;
 
                 case KillItWithFireStep.Positioning:
-                    TurnRight(robots[targetName].Bearing + 90);
+                    TurnRight(robots[TargetEnemyName].Bearing + 90);
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
@@ -219,25 +216,28 @@ namespace YoloSpace
 
             if (enemy.Distance > DISTANCE_THRESHOLD && enemy.Time < 500) return;
 
-            if (lastBulletHit == null &&
+            if (LastBulletHit == null &&
                 CurrentPhase == RoboPhase.MeetAndGreet)
             {
-                lastBulletHit = evnt;
+                LastBulletHit = evnt;
                 CurrentPhase = RoboPhase.KillItWithFire;
-                targetName = evnt.Name;
+                TargetEnemyName = evnt.Name;
             }
-            else if (lastBulletHit?.Name == evnt.Name)
-                lastBulletHit = evnt;
+            else if (LastBulletHit?.Name == evnt.Name)
+                LastBulletHit = evnt;
 
             base.OnHitByBullet(evnt);
         }
         public override void OnRobotDeath(RobotDeathEvent evnt)
         {
             Console.WriteLine("Died: " + evnt.Name);
-            if (targetName == evnt.Name || lastBulletHit?.Name == evnt.Name)
+            if (TargetEnemyName == evnt.Name || LastBulletHit?.Name == evnt.Name)
             {
-                lastBulletHit = null;
-                targetName = null;
+                if (robots.ContainsKey(evnt.Name))
+                    robots.Remove(evnt.Name);
+
+                LastBulletHit = null;
+                TargetEnemyName = null;
 
                 CurrentPhase = RoboPhase.WallRush;
             }
@@ -248,7 +248,7 @@ namespace YoloSpace
         {
             base.OnScannedRobot(evnt);
 
-            if (Others == 1) targetName = evnt.Name;
+            if (Others == 1) TargetEnemyName = evnt.Name;
 
             switch (CurrentPhase)
             {
@@ -276,11 +276,17 @@ namespace YoloSpace
 
             if (robots.ContainsKey(evnt.Name))
             {
-                robots[evnt.Name] = new EnemyBot(evnt, robots[evnt.Name], enemyX, enemyY, Heading, robots[evnt.Name]?.Hits ?? 0);
+                robots[evnt.Name] = new EnemyBot(evnt, robots[evnt.Name], enemyX, enemyY, Heading, robots[evnt.Name]?.Hits ?? 0)
+                {
+                    IsTarget = TargetEnemyName == evnt.Name
+                };
             }
             else
             {
-                robots[evnt.Name] = new EnemyBot(evnt, null, enemyX, enemyY, Heading, 0);
+                robots[evnt.Name] = new EnemyBot(evnt, null, enemyX, enemyY, Heading, 0)
+                {
+                    IsTarget = TargetEnemyName == evnt.Name
+                };
             }
         }
 
@@ -316,11 +322,16 @@ namespace YoloSpace
             phases.Add(RoboPhase.RunForestRun, new RunForestRunPhase(this));
         }
 
-        public Point GetLastTargetCoordinates()
+        private bool BoundCompare(double value, double compareToValue, double bounds)
+            => ((value - bounds) <= compareToValue && compareToValue <= (value + bounds));
+
+        public Point GetLastTargetCoordinates(bool tryOptimize = false)
         {
             if (TargetEnemyName == null || !KnownEnemies.ContainsKey(TargetEnemyName)) return new Point();
 
             var lastScanStatus = KnownEnemies[TargetEnemyName];
+
+            if ((lastScanStatus?.Energy ?? 0) == 0) lastScanStatus = null;
 
             double? x = LastBulletHit?.Bullet?.X;
             double? y = LastBulletHit?.Bullet?.Y;
@@ -333,6 +344,34 @@ namespace YoloSpace
                 {
                     x = lastScanStatus.X;
                     y = lastScanStatus.Y;
+                }
+
+                if (tryOptimize)
+                {
+                    EnemyBot curEnemy = lastScanStatus;
+                    List<EnemyBot> interesting = new List<EnemyBot>();
+
+                    for (var i = 0; i < 100; i++)
+                    {
+                        interesting.Add(curEnemy);
+
+                        if (!curEnemy.IsTarget) break;
+                        if (curEnemy.PreviousEntry == null) break;
+                        curEnemy = curEnemy.PreviousEntry;
+                    }
+
+                    var target = interesting.Select(i => new
+                    {
+                        Amount = interesting.Count(i2 => BoundCompare(i.X, i2.X, 10) && BoundCompare(i.Y, i2.Y, 10)),
+                        X = i.X,
+                        Y = i.Y
+                    }).ToArray();
+
+                    if (target.Max(t => t.Amount) > 10)
+                    {
+                        x = target.OrderByDescending(t => t.Amount).FirstOrDefault()?.X;
+                        y = target.OrderByDescending(t => t.Amount).FirstOrDefault()?.Y;
+                    }
                 }
             }
 
@@ -350,7 +389,32 @@ namespace YoloSpace
             while (true)
             {
                 if (phases.ContainsKey(CurrentPhase))
-                    phases[CurrentPhase].Run();
+                {
+                    if (phases[CurrentPhase] is IAdvancedPhase)
+                    {
+                        var oldPhase = CurrentPhase;
+                        IAdvancedPhase phase = (IAdvancedPhase)phases[oldPhase];
+
+                        var newPhase = phase.Tick();
+
+                        if (CurrentPhase != newPhase)
+                        {
+                            phase.DeactivatePhase(newPhase);
+
+                            if (phases[oldPhase] is IAdvancedPhase)
+                            {
+                                phase = (IAdvancedPhase)phases[newPhase];
+                                phase.ActivatePhase(oldPhase);
+                            }
+
+                            CurrentPhase = newPhase;
+                        }
+                    }
+                    else
+                        phases[CurrentPhase].Run();
+                }
+
+                Execute();
             }
         }
 
@@ -371,7 +435,22 @@ namespace YoloSpace
 
             if (TargetEnemyName != null)
             {
-                var target = GetLastTargetCoordinates();
+                var target = GetLastTargetCoordinates(true);
+                graphics.DrawEllipse(Pens.Yellow, new RectangleF
+                {
+                    Height = 50,
+                    Width = 50,
+                    X = Convert.ToSingle(target.X - 25),
+                    Y = Convert.ToSingle(target.Y - 25)
+                });
+
+                graphics.DrawLine(Pens.Yellow,
+                    Convert.ToSingle(X),
+                    Convert.ToSingle(Y),
+                    Convert.ToSingle(target.X),
+                    Convert.ToSingle(target.Y));
+
+                target = GetLastTargetCoordinates();
                 graphics.DrawEllipse(Pens.Red, new RectangleF
                 {
                     Height = 50,

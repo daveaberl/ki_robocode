@@ -15,7 +15,6 @@ namespace YoloSpace
         KillingItSoftly
     }
 
-
     enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };
 
     enum KillItWithFireStep
