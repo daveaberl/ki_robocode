@@ -12,7 +12,8 @@ namespace YoloSpace
         MeetAndGreet,
         RunForestRun,
         KillItWithFire,
-        KillingItSoftly
+        KillingItSoftly,
+        UnknownPhase
     }
 
     enum Direction { NORTH, EAST, SOUTH, WEST, UNKOWN };

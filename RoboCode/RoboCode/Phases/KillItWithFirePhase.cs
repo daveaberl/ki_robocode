@@ -14,7 +14,6 @@ namespace YoloSpace.Phases
 
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
-        private long lastReached = 0;
 
         public KillItWithFirePhase(YoloBot Robot) : base(Robot)
         {
