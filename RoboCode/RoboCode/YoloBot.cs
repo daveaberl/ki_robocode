@@ -14,6 +14,8 @@ namespace YoloSpace
         public const double DISTANCE_THRESHOLD = 500;
         public const double OFFSET = 80;
 
+        private Exception exception;
+
         private Dictionary<RoboPhase, IPhase> phases = new Dictionary<RoboPhase, IPhase>();
         public Point Target { get; set; }
 
@@ -345,40 +347,47 @@ namespace YoloSpace
 
         public override void Run()
         {
-            Console.WriteLine("START");
-            BodyColor = Color.Black;
-            GunColor = Color.White;
-            RadarColor = Color.White;
-            CurrentPhase = RoboPhase.WallRush;
-            RoboPhase changePhase = RoboPhase.UnknownPhase;
-
-            IsAdjustGunForRobotTurn = true;
-
-            while (true)
+            try
             {
-                if (phases.ContainsKey(CurrentPhase))
+                Console.WriteLine("START");
+                BodyColor = Color.Black;
+                GunColor = Color.White;
+                RadarColor = Color.White;
+                CurrentPhase = RoboPhase.WallRush;
+                RoboPhase changePhase = RoboPhase.UnknownPhase;
+
+                IsAdjustGunForRobotTurn = true;
+
+                while (true)
                 {
-                    if (phases[CurrentPhase] is IAdvancedPhase)
+                    if (phases.ContainsKey(CurrentPhase))
                     {
-                        IAdvancedPhase phase = (IAdvancedPhase)phases[CurrentPhase];
-                        if (CurrentPhase != changePhase)
+                        if (phases[CurrentPhase] is IAdvancedPhase)
                         {
-                            phase.ActivatePhase(changePhase);
+                            IAdvancedPhase phase = (IAdvancedPhase)phases[CurrentPhase];
+                            if (CurrentPhase != changePhase)
+                            {
+                                phase.ActivatePhase(changePhase);
+                                changePhase = CurrentPhase;
+                            }
+                            phase.Tick();
+                            if (CurrentPhase != changePhase)
+                            {
+                                phase.DeactivatePhase(changePhase);
+                            }
+                        }
+                        else
+                        {
                             changePhase = CurrentPhase;
-                        }
-                        phase.Tick();
-                        if (CurrentPhase != changePhase)
-                        {
-                            phase.DeactivatePhase(changePhase);
+                            phases[CurrentPhase].Run();
                         }
                     }
-                    else
-                    {
-                        changePhase = CurrentPhase;
-                        phases[CurrentPhase].Run();
-                    }
+                    Execute();
                 }
-                Execute();
+            }
+            catch (Exception e)
+            {
+                exception = e;
             }
         }
 
@@ -510,6 +519,14 @@ namespace YoloSpace
             }
 
             graphics.DrawString(phases[CurrentPhase].ToString(), new Font(FontFamily.GenericSerif, 1), Brushes.LightGray, new PointF(0, 0));
+
+            if (exception != null)
+            {
+                graphics.DrawString(exception.Message + Environment.NewLine + exception.StackTrace,
+                    new Font(FontFamily.GenericSerif, 0.5f),
+                    Brushes.Red,
+                    new PointF(0, Convert.ToSingle(BattleFieldHeight - 20)));
+            }
         }
     }
 }
