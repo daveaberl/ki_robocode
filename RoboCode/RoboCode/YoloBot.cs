@@ -73,7 +73,7 @@ namespace YoloSpace
             set;
         }
 
-        private Random random = new Random(); 
+        private Random random = new Random();
 
         private Direction DetermineOppositeDirection(Direction direction)
         {
@@ -382,8 +382,59 @@ namespace YoloSpace
             }
         }
 
+        private void PaintPowerEllipses(IGraphics graphics)
+        {
+            Point target = new Point { X = X, Y = Y };
+
+            graphics.DrawEllipse(Pens.Gray, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_025)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_025)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_025) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_025) * 2
+            });
+
+            graphics.DrawEllipse(Pens.DarkGray, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_050)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_050)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_050) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_050) * 2
+            });
+
+            graphics.DrawEllipse(Pens.Orange, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_075)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_075)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_075) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_075) * 2
+            });
+
+            graphics.DrawEllipse(Pens.OrangeRed, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_100)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_100)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_100) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_100) * 2
+            });
+
+            if (Others > 1)
+            {
+                graphics.DrawEllipse(Pens.LightGreen, new RectangleF
+                {
+                    X = Convert.ToSingle(target.X - (KillItWithFirePhase.MAX_DISTANCE)),
+                    Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.MAX_DISTANCE)),
+                    Width = Convert.ToSingle(KillItWithFirePhase.MAX_DISTANCE) * 2,
+                    Height = Convert.ToSingle(KillItWithFirePhase.MAX_DISTANCE) * 2
+                });
+            }
+        }
+
         public override void OnPaint(IGraphics graphics)
         {
+            if (CurrentPhase == RoboPhase.KillItWithFire)
+                PaintPowerEllipses(graphics);
+
             base.OnPaint(graphics);
 
             foreach (var enemy in robots.Values)
@@ -400,6 +451,7 @@ namespace YoloSpace
             if (TargetEnemyName != null)
             {
                 var target = GetLastTargetCoordinates(true);
+
                 graphics.DrawEllipse(Pens.Yellow, new RectangleF
                 {
                     Height = 50,

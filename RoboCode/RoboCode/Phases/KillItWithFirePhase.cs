@@ -9,8 +9,13 @@ namespace YoloSpace.Phases
 {
     class KillItWithFirePhase : AdvancedPhase
     {
-        private const int MAX_DISTANCE = 400;
+        public const int MAX_DISTANCE = 400;
         private const int WALL_OFFSET = 30;
+
+        public const double POWER_100 = 100;
+        public const double POWER_075 = 180;
+        public const double POWER_050 = 230;
+        public const double POWER_025 = 270;
 
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
@@ -110,16 +115,16 @@ namespace YoloSpace.Phases
             double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
             double diff = Rules.MAX_BULLET_POWER - min;
 
-            if (target.Distance < 100)
+            if (target.Distance < POWER_100)
                 return Rules.MAX_BULLET_POWER;
 
-            if (target.Distance < 180)
+            if (target.Distance < POWER_075)
                 return min + diff * 0.75;
 
-            if (target.Distance < 230)
+            if (target.Distance < POWER_050)
                 return min + diff * 0.5;
 
-            if (target.Distance < 270)
+            if (target.Distance < POWER_025)
                 return min + diff * 0.25;
 
             return min;
