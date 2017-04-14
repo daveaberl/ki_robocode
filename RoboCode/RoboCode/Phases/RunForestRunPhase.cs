@@ -14,6 +14,11 @@ namespace YoloSpace.Phases
         {
         }
 
+        public override void ActivatePhase(RoboPhase previousPhase)
+        {
+            isDriving = false;
+        }
+
         public override void Run()
         {
             Robot.BodyColor = System.Drawing.Color.Pink;
