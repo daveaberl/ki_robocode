@@ -100,6 +100,11 @@ namespace YoloSpace.Phases
             return 1;
         }
 
+        private long GetTimeOfMaxHistory(EnemyBot target, long maxHist = 30)
+        {
+            return maxHist;
+        }
+
         private void Aim(EnemyBot target, double power)
         {
             double distance = CoordinateHelper.GetDistance(target.X, target.Y, Robot.X, Robot.Y);
@@ -109,7 +114,7 @@ namespace YoloSpace.Phases
             if (target.PreviousEntry != null)
             {
                 double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
-                if (Math.Abs(hCPT) > 0.00001)
+                if (Math.Abs(hCPT) > 0.00001 && false)
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;

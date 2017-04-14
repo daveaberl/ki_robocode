@@ -31,10 +31,13 @@ namespace YoloSpace.Phases
         {
             if (robot.DetermineDistance(robot.CurrentDirection) < YoloBot.OFFSET)
             {
-                robot.TurnLeft(1);
-                robot.TurnLeft(robot.Heading % 90);
+                var target = robot.Heading % 90;
+
+                if (target == 0) target = 90;
+
+                robot.TurnLeft(target);
             }
-            robot.SetAhead(20);
+            robot.SetAhead(100);
         }
 
         public void Run()
