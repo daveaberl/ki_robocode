@@ -228,7 +228,7 @@ namespace YoloSpace.Phases
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, Robot.Target.X, Robot.Target.Y);
             Robot.SetGunHeadingTo(degrees);
 
-            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0 && Robot.Target.X > 0 && Robot.Target.Y > 0)
+            if (Robot.GunTurnRemaining <= 0 && Robot.GunHeat == 0 && Robot.Target.X > 0 && Robot.Target.Y > 0)
                 Robot.SetFire(power);
         }
 

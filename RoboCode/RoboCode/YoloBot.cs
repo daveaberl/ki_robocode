@@ -356,6 +356,8 @@ namespace YoloSpace
                 CurrentPhase = RoboPhase.WallRush;
                 RoboPhase changePhase = RoboPhase.UnknownPhase;
 
+                IsAdjustGunForRobotTurn = true;
+
                 while (true)
                 {
                     foreach (var enemies in KnownEnemies.Where(r => (Time - r.Value.Time) >= 30).ToArray())
@@ -375,20 +377,24 @@ namespace YoloSpace
                             {
                                 phase.ActivatePhase(changePhase);
                                 changePhase = CurrentPhase;
+                                Execute();
                             }
                             phase.Tick();
                             if (CurrentPhase != changePhase)
                             {
+                                Execute();
                                 phase.DeactivatePhase(changePhase);
                             }
+                            else
+                                Execute();
                         }
                         else
                         {
                             changePhase = CurrentPhase;
                             phases[CurrentPhase].Run();
+                            Execute();
                         }
                     }
-                    Execute();
                 }
             }
             catch (Exception e)
