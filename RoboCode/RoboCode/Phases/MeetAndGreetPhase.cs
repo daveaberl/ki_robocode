@@ -8,6 +8,8 @@ namespace YoloSpace.Phases
 {
     class MeetAndGreetPhase : AdvancedPhase
     {
+        public const double OFFSET = 60;
+        public const double SMALLER_OFFSET = OFFSET - 10;
 
         private MeetAndGreetStep currentMeetAndGreetPhase;
 
@@ -38,17 +40,17 @@ namespace YoloSpace.Phases
             double distance = Robot.DetermineDistance(Robot.CurrentDirection);
             if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.DriveCurve)
             {
-                if (distance > YoloBot.OFFSET)
+                if (distance > SMALLER_OFFSET)
                 {
-                    Robot.SetAhead(distance - YoloBot.OFFSET);
+                    Robot.SetAhead(distance - OFFSET);
                 }
                 currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
             }
             else if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.MoveForward)
             {
-                if (Robot.DetermineDistance(Robot.DetermineLeftDirection(Robot.CurrentDirection)) > YoloBot.OFFSET)
+                if (Robot.DetermineDistance(Robot.DetermineLeftDirection(Robot.CurrentDirection)) > SMALLER_OFFSET && distance >= SMALLER_OFFSET)
                 {
-                    Robot.SetAhead(100);
+                    Robot.SetAhead(50);
                 }
                 Robot.SetTurnLeft(45);
                 currentMeetAndGreetPhase = MeetAndGreetStep.DriveCurve;

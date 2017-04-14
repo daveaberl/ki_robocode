@@ -14,7 +14,6 @@ namespace YoloSpace
     class YoloBot : AdvancedRobot
     {
         public const double DISTANCE_THRESHOLD = 500;
-        public const double OFFSET = 80;
 
         private Exception exception;
 
