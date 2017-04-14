@@ -146,8 +146,6 @@ namespace YoloSpace.Phases
 
         private double CalculatePower(EnemyBot target)
         {
-            Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
-
             double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
             double diff = Rules.MAX_BULLET_POWER - min;
 
@@ -270,7 +268,6 @@ namespace YoloSpace.Phases
                     else
                     {
                         double power = CalculatePower(target);
-                        Console.WriteLine($"power: {power}");
                         Aim(target, power);
                         Shoot(power);
                     }
