@@ -9,8 +9,8 @@ namespace YoloSpace.Phases
 {
     class KillItWithFirePhase : AdvancedPhase
     {
-        public const int MAX_DISTANCE = 400;
-        private const int WALL_OFFSET = 30;
+        public const int MAX_DISTANCE = 500;
+        public const int WALL_OFFSET = 80;
 
         public const double POWER_100 = 100;
         public const double POWER_075 = 180;
@@ -40,7 +40,15 @@ namespace YoloSpace.Phases
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
-                    if ((!isAway && Robot.DistanceRemaining == 0))
+                    var rideIntoTheDangerZone = DetermineWallDanger();
+                    Console.WriteLine("WALLLLL!!! " + rideIntoTheDangerZone);
+
+                    if (rideIntoTheDangerZone)
+                    {
+                        Robot.SetAhead(0);
+                        currentKillItWithFirePhase = KillItWithFireStep.EscapeTheDangerZone;
+                    }
+                    else if (!isAway && Robot.DistanceRemaining == 0)
                     {
                         Robot.SetAhead(100);
                         Robot.SetTurnLeft(100);
@@ -53,6 +61,17 @@ namespace YoloSpace.Phases
                         isAway = !isAway;
                     }
                     break;
+                case KillItWithFireStep.EscapeTheDangerZone:
+                    if (Robot.DistanceRemaining == 0 && DetermineWallDanger())
+                    {
+                        MoveTowardsCenter();
+                    }
+                    else if (Robot.DistanceRemaining == 0)
+                    {
+                        currentKillItWithFirePhase = KillItWithFireStep.Dodge;
+                    }
+
+                    break;
             }
 
             if (Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
@@ -61,21 +80,27 @@ namespace YoloSpace.Phases
             }
         }
 
+        private void MoveTowardsCenter()
+        {
+            double centerAngle = Math.Atan2(Robot.BattleFieldWidth / 2 - Robot.X, Robot.BattleFieldHeight / 2 - Robot.Y);
+            Robot.SetTurnRightRadians(NormalRelativeAngle(centerAngle - Robot.HeadingRadians));
+            Robot.SetAhead(150);
+        }
+
+        private double NormalRelativeAngle(double a)
+        {
+            while (a <= -Math.PI) a += 2 * Math.PI;
+            while (Math.PI < a) a -= 2 * Math.PI;
+            return a;
+        }
+
         private bool DetermineWallDanger()
         {
-            if ((Robot.Heading == 0 || Robot.Heading == 180) && (Robot.Y < WALL_OFFSET || Robot.Y > Robot.BattleFieldHeight - WALL_OFFSET))
+            if (Robot.Y < WALL_OFFSET || Robot.Y > Robot.BattleFieldHeight - WALL_OFFSET || Robot.X < WALL_OFFSET || Robot.X > Robot.BattleFieldWidth - WALL_OFFSET)
             {
-                return false;
+                return true;
             }
-            else if ((Robot.Heading == 90 || Robot.Heading == 270) && (Robot.X < WALL_OFFSET || Robot.X > Robot.BattleFieldWidth - WALL_OFFSET))
-            {
-                return false;
-            }
-            else if (Robot.Y < WALL_OFFSET || Robot.Y > Robot.BattleFieldHeight - WALL_OFFSET || Robot.X < WALL_OFFSET || Robot.X > Robot.BattleFieldWidth - WALL_OFFSET)
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
 
         bool scanLeft = false;

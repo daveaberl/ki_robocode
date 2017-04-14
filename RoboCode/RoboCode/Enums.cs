@@ -21,7 +21,8 @@ namespace YoloSpace
     enum KillItWithFireStep
     {
         MoveFromWall,
-        Dodge
+        Dodge,
+        EscapeTheDangerZone
     }
 
     enum MeetAndGreetStep
