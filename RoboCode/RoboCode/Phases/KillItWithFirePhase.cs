@@ -12,6 +12,14 @@ namespace YoloSpace.Phases
         public const int MAX_DISTANCE = 500;
         public const int WALL_OFFSET = 80;
 
+        public const double POWER_100 = 120;
+        public const double POWER_075 = 200;
+        public const double POWER_050 = 270;
+        public const double POWER_025 = 350;
+
+        public const int MAX_RANDOM = 150;
+        public const int MIN_RANDOM = 80;
+
         private Random random = new Random();
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
@@ -46,20 +54,20 @@ namespace YoloSpace.Phases
                     {
                         if (random.Next(0, 2) == 0)
                         {
-                            Robot.SetAhead(random.Next(80, 120));
+                            Robot.SetAhead(random.Next(MIN_RANDOM, MAX_RANDOM));
                         }
                         else
                         {
-                            Robot.SetBack(random.Next(80, 120));
+                            Robot.SetBack(random.Next(MIN_RANDOM, MAX_RANDOM));
                         }
 
                         if (random.Next(0, 2) == 0)
                         {
-                            Robot.SetTurnLeft(random.Next(80, 120));
+                            Robot.SetTurnLeft(random.Next(MIN_RANDOM, MAX_RANDOM));
                         }
                         else
                         {
-                            Robot.SetTurnRight(random.Next(80, 120));
+                            Robot.SetTurnRight(random.Next(MIN_RANDOM, MAX_RANDOM));
                         }
                         isAway = !isAway;
                     }
@@ -143,16 +151,16 @@ namespace YoloSpace.Phases
             double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
             double diff = Rules.MAX_BULLET_POWER - min;
 
-            if (target.Distance < 100)
+            if (target.Distance < POWER_100)
                 return Rules.MAX_BULLET_POWER;
 
-            if (target.Distance < 180)
+            if (target.Distance < POWER_075)
                 return min + diff * 0.75;
 
-            if (target.Distance < 230)
+            if (target.Distance < POWER_050)
                 return min + diff * 0.5;
 
-            if (target.Distance < 270)
+            if (target.Distance < POWER_025)
                 return min + diff * 0.25;
 
             return min;
@@ -256,6 +264,8 @@ namespace YoloSpace.Phases
                         Robot.CurrentPhase = RoboPhase.WallRush;
                         Robot.TargetEnemyName = null;
                         Robot.LastBulletHit = null;
+
+                        Robot.KnownEnemies.Remove(target.Name);
                     }
                     else
                     {

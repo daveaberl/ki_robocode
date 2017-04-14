@@ -382,8 +382,59 @@ namespace YoloSpace
             }
         }
 
+        private void PaintPowerEllipses(IGraphics graphics)
+        {
+            Point target = new Point { X = X, Y = Y };
+
+            graphics.DrawEllipse(Pens.Gray, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_025)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_025)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_025) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_025) * 2
+            });
+
+            graphics.DrawEllipse(Pens.DarkGray, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_050)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_050)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_050) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_050) * 2
+            });
+
+            graphics.DrawEllipse(Pens.Orange, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_075)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_075)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_075) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_075) * 2
+            });
+
+            graphics.DrawEllipse(Pens.OrangeRed, new RectangleF
+            {
+                X = Convert.ToSingle(target.X - (KillItWithFirePhase.POWER_100)),
+                Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.POWER_100)),
+                Width = Convert.ToSingle(KillItWithFirePhase.POWER_100) * 2,
+                Height = Convert.ToSingle(KillItWithFirePhase.POWER_100) * 2
+            });
+
+            if (Others > 1)
+            {
+                graphics.DrawEllipse(Pens.LightGreen, new RectangleF
+                {
+                    X = Convert.ToSingle(target.X - (KillItWithFirePhase.MAX_DISTANCE)),
+                    Y = Convert.ToSingle(target.Y - (KillItWithFirePhase.MAX_DISTANCE)),
+                    Width = Convert.ToSingle(KillItWithFirePhase.MAX_DISTANCE) * 2,
+                    Height = Convert.ToSingle(KillItWithFirePhase.MAX_DISTANCE) * 2
+                });
+            }
+        }
+
         public override void OnPaint(IGraphics graphics)
         {
+            if (CurrentPhase == RoboPhase.KillItWithFire)
+                PaintPowerEllipses(graphics);
+
             base.OnPaint(graphics);
 
             foreach (var enemy in robots.Values)
@@ -397,9 +448,10 @@ namespace YoloSpace
                 });
             }
 
-            if (TargetEnemyName != null)
+            if (TargetEnemyName != null && CurrentPhase == RoboPhase.KillItWithFire)
             {
                 var target = GetLastTargetCoordinates(true);
+
                 graphics.DrawEllipse(Pens.Yellow, new RectangleF
                 {
                     Height = 50,
@@ -428,35 +480,34 @@ namespace YoloSpace
                     Convert.ToSingle(Y),
                     Convert.ToSingle(target.X),
                     Convert.ToSingle(target.Y));
-
-
             }
 
-            graphics.DrawLine(Pens.White,
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
+            if (CurrentPhase == RoboPhase.KillItWithFire)
+            {
+                graphics.DrawLine(Pens.Red,
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
 
-            graphics.DrawLine(Pens.White,
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
+                graphics.DrawLine(Pens.Red,
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
 
-            graphics.DrawLine(Pens.White,
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
+                graphics.DrawLine(Pens.Red,
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
 
-            graphics.DrawLine(Pens.White,
-                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
-                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
-
-
+                graphics.DrawLine(Pens.Red,
+                    Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                    Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
+            }
 
             graphics.DrawString(phases[CurrentPhase].ToString(), new Font(FontFamily.GenericSerif, 1), Brushes.LightGray, new PointF(0, 0));
         }
