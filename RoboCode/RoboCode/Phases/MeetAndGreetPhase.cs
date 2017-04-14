@@ -11,6 +11,8 @@ namespace YoloSpace.Phases
         public const double OFFSET = 60;
         public const double SMALLER_OFFSET = OFFSET - 10;
 
+        public const double ENEMY_THRESHOLD = 200;
+
         private MeetAndGreetStep currentMeetAndGreetPhase;
 
         public MeetAndGreetPhase(YoloBot robot) : base(robot)
@@ -26,13 +28,12 @@ namespace YoloSpace.Phases
 
         private void CheckEnemies()
         {
-            foreach (var robot in Robot.KnownEnemies)
+            var enemy = Robot.KnownEnemies.OrderBy(o => o.Value.Distance).FirstOrDefault(o => o.Value.Distance < ENEMY_THRESHOLD);
+
+            if (enemy.Value != null)
             {
-                if (robot.Value.Distance < 200)
-                {
-                    this.Robot.TargetEnemyName = robot.Value.Name;
-                    this.Robot.CurrentPhase = RoboPhase.KillItWithFire;
-                }
+                this.Robot.TargetEnemyName = enemy.Value.Name;
+                this.Robot.CurrentPhase = RoboPhase.KillItWithFire;
             }
         }
 

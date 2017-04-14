@@ -454,6 +454,24 @@ namespace YoloSpace
         {
             if (CurrentPhase == RoboPhase.KillItWithFire)
                 PaintPowerEllipses(graphics);
+            else if (CurrentPhase == RoboPhase.MeetAndGreet)
+            {
+                graphics.DrawEllipse(Pens.Orange, new RectangleF
+                {
+                    X = Convert.ToSingle(X - (MeetAndGreetPhase.ENEMY_THRESHOLD)),
+                    Y = Convert.ToSingle(Y - (MeetAndGreetPhase.ENEMY_THRESHOLD)),
+                    Width = Convert.ToSingle(MeetAndGreetPhase.ENEMY_THRESHOLD) * 2,
+                    Height = Convert.ToSingle(MeetAndGreetPhase.ENEMY_THRESHOLD) * 2
+                });
+
+                graphics.DrawEllipse(Pens.Red, new RectangleF
+                {
+                    X = Convert.ToSingle(X - DISTANCE_THRESHOLD),
+                    Y = Convert.ToSingle(Y - DISTANCE_THRESHOLD),
+                    Width = Convert.ToSingle(DISTANCE_THRESHOLD) * 2,
+                    Height = Convert.ToSingle(DISTANCE_THRESHOLD) * 2
+                });
+            }
 
             base.OnPaint(graphics);
 
