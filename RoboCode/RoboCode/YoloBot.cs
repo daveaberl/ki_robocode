@@ -154,16 +154,16 @@ namespace YoloSpace
             if (targetDir > RadarHeading)
             {
                 if (absDegrees > 180)
-                    TurnRadarLeft(absDegrees - 180);
+                    SetTurnRadarLeft(absDegrees - 180);
                 else
-                    TurnRadarRight(absDegrees);
+                    SetTurnRadarRight(absDegrees);
             }
             else if (targetDir < RadarHeading)
             {
                 if (absDegrees > 180)
-                    TurnRadarRight(absDegrees - 180);
+                    SetTurnRadarRight(absDegrees - 180);
                 else
-                    TurnRadarLeft(absDegrees);
+                    SetTurnRadarLeft(absDegrees);
             }
         }
 
@@ -429,6 +429,8 @@ namespace YoloSpace
                     Convert.ToSingle(target.X),
                     Convert.ToSingle(target.Y));
             }
+
+            graphics.DrawString(phases[CurrentPhase].ToString(), new Font(FontFamily.GenericSerif, 1), Brushes.LightGray, new PointF(0, 0));
         }
     }
 }

@@ -73,12 +73,34 @@ namespace YoloSpace.Phases
             return true;
         }
 
+        bool scanLeft = false;
+
         private void Scan()
         {
             var pos = Robot.GetLastTargetCoordinates();
+
+            if (pos.X == 0 && pos.Y == 0) return;
+
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, pos.X, pos.Y);
-            Robot.SetRadarHeadingTo(degrees - 45);
-            Robot.SetRadarHeadingTo(degrees + 45);
+
+            double diff = (degrees - Robot.RadarHeading) + 180;
+
+            if (Robot.RadarTurnRemaining == 0)
+            {
+                if (scanLeft)
+                {
+                    Robot.SetRadarHeadingTo(degrees + 45);
+                    scanLeft = false;
+                }
+                else
+                {
+                    Robot.SetRadarHeadingTo(degrees - 45);
+                    scanLeft = true;
+                }
+            }
+
+            //Robot.SetRadarHeadingTo(degrees - 45);
+            //Robot.SetRadarHeadingTo(degrees + 45);
         }
 
         private double CalculatePower(EnemyBot target)
@@ -107,26 +129,39 @@ namespace YoloSpace.Phases
 
         private void Aim(EnemyBot target, double power)
         {
-            double distance = CoordinateHelper.GetDistance(target.X, target.Y, Robot.X, Robot.Y);
-            double pTime = Robot.Time + (distance / Rules.GetBulletSpeed(power));
-            double diff = pTime - target.Time;
+            Point p = new Point { X = target.X, Y = target.Y };
+            for (int i = 0; i < 10; i++)
+            {
+                double nextTime = CoordinateHelper.GetDistance(p.X, p.Y, Robot.X, Robot.Y) / Rules.GetBulletSpeed(power);
+                double time = Robot.Time + nextTime;
+                p = GuessPosition(time, target);
+            }
+            p.X = Math.Max(Robot.Width / 2, p.X);
+            p.Y = Math.Max(Robot.Height / 2, p.Y);
+            p.X = Math.Min(Robot.BattleFieldWidth - Robot.Width / 2, p.X);
+            p.Y = Math.Min(Robot.BattleFieldHeight - Robot.Height / 2, p.Y);
+            Robot.Target = p;
+        }
 
+        private Point GuessPosition(double time, EnemyBot target)
+        {
+            double diff = time - target.Time;
             if (target.PreviousEntry != null)
             {
                 double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
-                if (Math.Abs(hCPT) > 0.00001 && false)
+                if (Math.Abs(hCPT) > 0.00001)
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;
-                    Robot.Target = new Point
+                    return new Point
                     {
-                        X = (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
-                        Y = (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
+                        X = target.X + (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
+                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
                     };
-                    return;
                 }
             }
-            Robot.Target = new Point
+
+            return new Point
             {
                 X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
                 Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
@@ -178,6 +213,11 @@ namespace YoloSpace.Phases
                 Robot.TargetEnemyName = null;
                 Robot.LastBulletHit = null;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()} - {Enum.GetName(typeof(KillItWithFireStep), currentKillItWithFirePhase)}";
         }
     }
 }
