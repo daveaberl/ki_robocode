@@ -1,7 +1,9 @@
 ﻿using Robocode;
+using Robocode.Exception;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -356,10 +358,11 @@ namespace YoloSpace
                 CurrentPhase = RoboPhase.WallRush;
                 RoboPhase changePhase = RoboPhase.UnknownPhase;
 
-                IsAdjustGunForRobotTurn = true;
-
                 while (true)
                 {
+                    foreach (var enemies in KnownEnemies.Where(r => (Time - r.Value.Time) >= 30).ToArray())
+                        KnownEnemies.Remove(enemies.Key);
+
                     if (phases.ContainsKey(CurrentPhase))
                     {
                         if (phases[CurrentPhase] is IAdvancedPhase)
@@ -385,9 +388,15 @@ namespace YoloSpace
                     Execute();
                 }
             }
+            catch (RobotException) { }
             catch (Exception e)
             {
                 exception = e;
+
+                Console.WriteLine(e.GetType().Name);
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                Thread.Sleep(10000);
             }
         }
 
