@@ -12,10 +12,10 @@ namespace YoloSpace.Phases
         public const int MAX_DISTANCE = 500;
         public const int WALL_OFFSET = 80;
 
-        public const double POWER_100 = 100;
-        public const double POWER_075 = 180;
-        public const double POWER_050 = 230;
-        public const double POWER_025 = 270;
+        public const double POWER_100 = 120;
+        public const double POWER_075 = 200;
+        public const double POWER_050 = 270;
+        public const double POWER_025 = 350;
 
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
@@ -253,6 +253,8 @@ namespace YoloSpace.Phases
                         Robot.CurrentPhase = RoboPhase.WallRush;
                         Robot.TargetEnemyName = null;
                         Robot.LastBulletHit = null;
+
+                        Robot.KnownEnemies.Remove(target.Name);
                     }
                     else
                     {
