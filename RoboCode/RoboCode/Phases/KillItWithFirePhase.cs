@@ -80,7 +80,6 @@ namespace YoloSpace.Phases
             Robot.SetRadarHeadingTo(degrees + 45);
         }
 
-
         private double CalculatePower(EnemyBot target)
         {
             Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
@@ -137,10 +136,9 @@ namespace YoloSpace.Phases
         {
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, Robot.Target.X, Robot.Target.Y);
             Robot.SetGunHeadingTo(degrees);
-            Robot.Execute();
 
-            if (Robot.GunTurnRemaining < 3)
-                Robot.Fire(power);
+            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0)
+                Robot.SetFire(power);
         }
 
         public override void Run()
@@ -161,9 +159,9 @@ namespace YoloSpace.Phases
                 return;
             }
 
+            Scan();
             if (Robot.TargetEnemyName != null)
             {
-                Scan();
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
@@ -172,8 +170,6 @@ namespace YoloSpace.Phases
                     Aim(target, power);
                     Shoot(target, power);
                 }
-
-                Robot.Execute();
             }
             else
             {
