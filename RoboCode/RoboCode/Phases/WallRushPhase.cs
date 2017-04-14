@@ -8,6 +8,8 @@ namespace YoloSpace.Phases
 {
     class WallRushPhase : AdvancedPhase
     {
+        private const double OFFSET = 60;
+
         public WallRushPhase(YoloBot Robot) : base(Robot)
         {
         }
@@ -16,7 +18,7 @@ namespace YoloSpace.Phases
         {
             Robot.BodyColor = System.Drawing.Color.Black;
             double distance = Robot.DetermineDistance(Robot.CurrentDirection);
-            Robot.SetAhead(distance - YoloBot.OFFSET);
+            Robot.SetAhead(distance - OFFSET);
             Robot.Execute();
         }
 
