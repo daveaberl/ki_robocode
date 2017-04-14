@@ -72,12 +72,34 @@ namespace YoloSpace.Phases
             return true;
         }
 
+        bool scanLeft = false;
+
         private void Scan()
         {
             var pos = Robot.GetLastTargetCoordinates();
+
+            if (pos.X == 0 && pos.Y == 0) return;
+
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, pos.X, pos.Y);
-            Robot.SetRadarHeadingTo(degrees - 45);
-            Robot.SetRadarHeadingTo(degrees + 45);
+
+            double diff = (degrees - Robot.RadarHeading) + 180;
+
+            if (Robot.RadarTurnRemaining == 0)
+            {
+                if (scanLeft)
+                {
+                    Robot.SetRadarHeadingTo(degrees + 45);
+                    scanLeft = false;
+                }
+                else
+                {
+                    Robot.SetRadarHeadingTo(degrees - 45);
+                    scanLeft = true;
+                }
+            }
+
+            //Robot.SetRadarHeadingTo(degrees - 45);
+            //Robot.SetRadarHeadingTo(degrees + 45);
         }
 
         private double CalculatePower(EnemyBot target)
