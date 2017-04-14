@@ -25,10 +25,8 @@ namespace YoloSpace.Phases
             if (Robot.RadarTurnRemaining == 0)
                 Robot.SetTurnRadarLeft(360);
 
-            if (Robot.DistanceRemaining <= 0)
-            {
+            if (Robot.DistanceRemaining <= 0 || Robot.Others == 1)
                 Robot.CurrentPhase = RoboPhase.MeetAndGreet;
-            }
         }
     }
 }
