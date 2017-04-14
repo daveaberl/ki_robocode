@@ -73,7 +73,7 @@ namespace YoloSpace
             set;
         }
 
-        private Random random = new Random(); 
+        private Random random = new Random();
 
         private Direction DetermineOppositeDirection(Direction direction)
         {
@@ -428,7 +428,35 @@ namespace YoloSpace
                     Convert.ToSingle(Y),
                     Convert.ToSingle(target.X),
                     Convert.ToSingle(target.Y));
+
+
             }
+
+            graphics.DrawLine(Pens.White,
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
+
+            graphics.DrawLine(Pens.White,
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
+
+            graphics.DrawLine(Pens.White,
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET));
+
+            graphics.DrawLine(Pens.White,
+                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldHeight - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(BattleFieldWidth - KillItWithFirePhase.WALL_OFFSET),
+                Convert.ToSingle(KillItWithFirePhase.WALL_OFFSET));
+
+
 
             graphics.DrawString(phases[CurrentPhase].ToString(), new Font(FontFamily.GenericSerif, 1), Brushes.LightGray, new PointF(0, 0));
         }
