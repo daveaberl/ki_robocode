@@ -136,7 +136,7 @@ namespace YoloSpace.Phases
                 double time = Robot.Time + nextTime;
                 p = GuessPosition(time, target);
             }
-            
+
             Robot.Target = p;
         }
 
@@ -159,7 +159,7 @@ namespace YoloSpace.Phases
                 }
             }
 
-            if(p == null)
+            if (p == null)
             {
                 p = new Point
                 {
@@ -214,10 +214,21 @@ namespace YoloSpace.Phases
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
-                    double power = CalculatePower(target);
-                    Console.WriteLine($"power: {power}");
-                    Aim(target, power);
-                    Shoot(target, power);
+
+                    if (Robot.Time - target.Time >= 20)
+                    {
+
+                        Robot.CurrentPhase = RoboPhase.WallRush;
+                        Robot.TargetEnemyName = null;
+                        Robot.LastBulletHit = null;
+                    }
+                    else
+                    {
+                        double power = CalculatePower(target);
+                        Console.WriteLine($"power: {power}");
+                        Aim(target, power);
+                        Shoot(target, power);
+                    }
                 }
             }
             else

@@ -59,9 +59,11 @@ namespace YoloSpace.Phases
         {
             Robot.BodyColor = System.Drawing.Color.Orange;
 
+            if (Robot.RadarTurnRemaining == 0)
+                Robot.SetTurnRadarLeft(360);
+
             CheckEnemies();
             Navigate();
-            Robot.SetTurnRadarLeft(45);
 
             if (Robot.Others == 1)
             {
