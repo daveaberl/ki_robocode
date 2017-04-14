@@ -107,19 +107,22 @@ namespace YoloSpace.Phases
         {
             Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
 
+            double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
+            double diff = Rules.MAX_BULLET_POWER - min;
+
             if (target.Distance < 100)
-                return 3;
+                return Rules.MAX_BULLET_POWER;
 
             if (target.Distance < 180)
-                return 2.5;
+                return min + diff * 0.75;
 
             if (target.Distance < 230)
-                return 2;
+                return min + diff * 0.5;
 
             if (target.Distance < 270)
-                return 1.5;
+                return min + diff * 0.25;
 
-            return 1;
+            return min;
         }
 
         private long GetTimeOfMaxHistory(EnemyBot target, long maxHist = 30)
@@ -129,6 +132,7 @@ namespace YoloSpace.Phases
 
         private void Aim(EnemyBot target, double power)
         {
+            
             Point p = new Point { X = target.X, Y = target.Y };
             for (int i = 0; i < 10; i++)
             {
@@ -136,7 +140,6 @@ namespace YoloSpace.Phases
                 double time = Robot.Time + nextTime;
                 p = GuessPosition(time, target);
             }
-
             Robot.Target = p;
         }
 
