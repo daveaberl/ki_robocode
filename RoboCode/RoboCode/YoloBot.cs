@@ -362,6 +362,11 @@ namespace YoloSpace
                     foreach (var enemies in KnownEnemies.Where(r => (Time - r.Value.Time) >= 30).ToArray())
                         KnownEnemies.Remove(enemies.Key);
 
+                    if (TargetEnemyName != null && !KnownEnemies.ContainsKey(TargetEnemyName))
+                    {
+                        TargetEnemyName = null;
+                    }
+
                     if (phases.ContainsKey(CurrentPhase))
                     {
                         if (phases[CurrentPhase] is IAdvancedPhase)
