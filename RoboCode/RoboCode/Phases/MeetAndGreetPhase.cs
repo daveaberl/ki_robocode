@@ -55,7 +55,7 @@ namespace YoloSpace.Phases
                     {
                         Robot.SetAhead(50);
                     }
-                    Robot.SetTurnLeft(45);
+                    Robot.SetTurnLeft(90);
                     currentMeetAndGreetPhase = MeetAndGreetStep.DriveCurve;
                 }
             }

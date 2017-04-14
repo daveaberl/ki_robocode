@@ -54,7 +54,7 @@ namespace YoloSpace.Phases
             {
                 turnHeading = false;
                 double distance = Robot.DetermineDistance(Robot.CurrentDirection);
-                Robot.SetAhead(distance - YoloBot.OFFSET);
+                Robot.SetAhead(distance - OFFSET);
             }
 
             if (Robot.RadarTurnRemaining == 0)
