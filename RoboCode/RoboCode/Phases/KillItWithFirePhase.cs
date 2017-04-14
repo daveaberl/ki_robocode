@@ -135,16 +135,14 @@ namespace YoloSpace.Phases
                 double time = Robot.Time + nextTime;
                 p = GuessPosition(time, target);
             }
-            p.X = Math.Max(Robot.Width / 2, p.X);
-            p.Y = Math.Max(Robot.Height / 2, p.Y);
-            p.X = Math.Min(Robot.BattleFieldWidth - Robot.Width / 2, p.X);
-            p.Y = Math.Min(Robot.BattleFieldHeight - Robot.Height / 2, p.Y);
+            
             Robot.Target = p;
         }
 
         private Point GuessPosition(double time, EnemyBot target)
         {
             double diff = time - target.Time;
+            Point? p = null;
             if (target.PreviousEntry != null)
             {
                 double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
@@ -152,19 +150,34 @@ namespace YoloSpace.Phases
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;
-                    return new Point
+                    p = new Point
                     {
                         X = target.X + (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
-                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
+                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius)
                     };
                 }
             }
 
-            return new Point
+            if(p == null)
             {
-                X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
-                Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
+                p = new Point
+                {
+                    X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
+                    Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
+                };
+            }
+
+            double x = Math.Max(Robot.Width / 2, p.Value.X);
+            x = Math.Min(Robot.BattleFieldWidth - Robot.Width / 2, x);
+            double y = Math.Max(Robot.Height / 2, p.Value.Y);
+            y = Math.Min(Robot.BattleFieldHeight - Robot.Height / 2, y);
+            p = new Point
+            {
+                X = x,
+                Y = y
             };
+
+            return (Point)p;
         }
 
         private void Shoot(EnemyBot target, double power)
