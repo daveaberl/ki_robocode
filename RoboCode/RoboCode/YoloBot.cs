@@ -451,6 +451,8 @@ namespace YoloSpace
                     Convert.ToSingle(target.X),
                     Convert.ToSingle(target.Y));
             }
+
+            graphics.DrawString(phases[CurrentPhase].ToString(), new Font(FontFamily.GenericSerif, 1), Brushes.LightGray, new PointF(0, 0));
         }
     }
 }
