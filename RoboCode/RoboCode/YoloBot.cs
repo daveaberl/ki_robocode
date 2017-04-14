@@ -176,16 +176,16 @@ namespace YoloSpace
             if (targetDir > RadarHeading)
             {
                 if (absDegrees > 180)
-                    TurnRadarLeft(absDegrees - 180);
+                    SetTurnRadarLeft(absDegrees - 180);
                 else
-                    TurnRadarRight(absDegrees);
+                    SetTurnRadarRight(absDegrees);
             }
             else if (targetDir < RadarHeading)
             {
                 if (absDegrees > 180)
-                    TurnRadarRight(absDegrees - 180);
+                    SetTurnRadarRight(absDegrees - 180);
                 else
-                    TurnRadarLeft(absDegrees);
+                    SetTurnRadarLeft(absDegrees);
             }
         }
 
