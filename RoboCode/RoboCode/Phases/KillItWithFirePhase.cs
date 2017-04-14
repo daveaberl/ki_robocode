@@ -85,7 +85,7 @@ namespace YoloSpace.Phases
                     break;
             }
 
-            if (Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
+            if (Robot.TargetEnemyName != null && Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
             {
                 Robot.CurrentPhase = RoboPhase.WallRush;
             }
@@ -146,8 +146,6 @@ namespace YoloSpace.Phases
 
         private double CalculatePower(EnemyBot target)
         {
-            Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
-
             double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
             double diff = Rules.MAX_BULLET_POWER - min;
 
@@ -242,7 +240,6 @@ namespace YoloSpace.Phases
                 Robot.BodyColor = System.Drawing.Color.Transparent;
             }
 
-            Navigate();
 
             var targetOfRobot = Robot.KnownEnemies.Values.FirstOrDefault(kvp => kvp.Hits > 3);
             if (targetOfRobot != null)
@@ -255,6 +252,7 @@ namespace YoloSpace.Phases
             Scan();
             if (Robot.TargetEnemyName != null)
             {
+                Navigate();
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
@@ -270,7 +268,6 @@ namespace YoloSpace.Phases
                     else
                     {
                         double power = CalculatePower(target);
-                        Console.WriteLine($"power: {power}");
                         Aim(target, power);
                         Shoot(power);
                     }

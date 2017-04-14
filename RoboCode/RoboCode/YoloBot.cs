@@ -1,7 +1,9 @@
 ﻿using Robocode;
+using Robocode.Exception;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +14,6 @@ namespace YoloSpace
     class YoloBot : AdvancedRobot
     {
         public const double DISTANCE_THRESHOLD = 500;
-        public const double OFFSET = 80;
 
         private Exception exception;
 
@@ -355,10 +356,16 @@ namespace YoloSpace
                 CurrentPhase = RoboPhase.WallRush;
                 RoboPhase changePhase = RoboPhase.UnknownPhase;
 
-                IsAdjustGunForRobotTurn = true;
-
                 while (true)
                 {
+                    foreach (var enemies in KnownEnemies.Where(r => (Time - r.Value.Time) >= 30).ToArray())
+                        KnownEnemies.Remove(enemies.Key);
+
+                    if (TargetEnemyName != null && !KnownEnemies.ContainsKey(TargetEnemyName))
+                    {
+                        TargetEnemyName = null;
+                    }
+
                     if (phases.ContainsKey(CurrentPhase))
                     {
                         if (phases[CurrentPhase] is IAdvancedPhase)
@@ -387,6 +394,11 @@ namespace YoloSpace
             catch (Exception e)
             {
                 exception = e;
+
+                Console.WriteLine(e.GetType().Name);
+                Console.WriteLine(e.Message ?? "Unkown");
+
+                throw e;
             }
         }
 

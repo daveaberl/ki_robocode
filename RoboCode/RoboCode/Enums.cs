@@ -12,7 +12,6 @@ namespace YoloSpace
         MeetAndGreet,
         RunForestRun,
         KillItWithFire,
-        KillingItSoftly,
         UnknownPhase
     }
 

@@ -9,7 +9,7 @@ namespace YoloSpace.Phases
     class WallRushPhase : AdvancedPhase
     {
         private bool turnHeading = false;
-
+        private const double OFFSET = 60;
 
         public WallRushPhase(YoloBot Robot) : base(Robot)
         {
