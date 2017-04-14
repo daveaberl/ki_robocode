@@ -85,7 +85,7 @@ namespace YoloSpace.Phases
                     break;
             }
 
-            if (Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
+            if (Robot.TargetEnemyName != null && Robot.KnownEnemies[Robot.TargetEnemyName].Distance >= MAX_DISTANCE && Robot.Others > 1)
             {
                 Robot.CurrentPhase = RoboPhase.WallRush;
             }
@@ -242,7 +242,6 @@ namespace YoloSpace.Phases
                 Robot.BodyColor = System.Drawing.Color.Transparent;
             }
 
-            Navigate();
 
             var targetOfRobot = Robot.KnownEnemies.Values.FirstOrDefault(kvp => kvp.Hits > 3);
             if (targetOfRobot != null)
@@ -255,6 +254,7 @@ namespace YoloSpace.Phases
             Scan();
             if (Robot.TargetEnemyName != null)
             {
+                Navigate();
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
