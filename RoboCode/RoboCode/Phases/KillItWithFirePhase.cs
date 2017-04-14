@@ -35,15 +35,16 @@ namespace YoloSpace.Phases
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
-                    bool wallDanger = DetermineWallDanger();
-                    if ((!isAway && Robot.DistanceRemaining == 0) || (!isAway && !wallDanger))
+                    if ((!isAway && Robot.DistanceRemaining == 0))
                     {
                         Robot.SetAhead(100);
+                        Robot.SetTurnLeft(100);
                         isAway = !isAway;
                     }
-                    else if (Robot.DistanceRemaining == 0 || !wallDanger)
+                    else if (Robot.DistanceRemaining == 0)
                     {
                         Robot.SetBack(100);
+                        Robot.SetTurnRight(100);
                         isAway = !isAway;
                     }
                     break;
