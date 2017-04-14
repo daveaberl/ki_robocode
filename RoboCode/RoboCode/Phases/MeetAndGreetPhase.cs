@@ -6,56 +6,75 @@ using System.Threading.Tasks;
 
 namespace YoloSpace.Phases
 {
-    class MeetAndGreetPhase : IPhase
+    class MeetAndGreetPhase : AdvancedPhase
     {
-        private YoloBot robot;
 
-        public MeetAndGreetPhase(YoloBot robot)
+        private MeetAndGreetStep currentMeetAndGreetPhase;
+
+        public MeetAndGreetPhase(YoloBot robot) : base(robot)
         {
-            this.robot = robot;
+        }
+
+        public override void ActivatePhase(RoboPhase previousPhase)
+        {
+            base.ActivatePhase(previousPhase);
+            currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
         }
 
         private void CheckEnemies()
         {
-            foreach (var robot in robot.KnownEnemies)
+            foreach (var robot in Robot.KnownEnemies)
             {
                 if (robot.Value.Distance < 200)
                 {
-                    this.robot.TargetEnemyName = robot.Value.Name;
-                    this.robot.CurrentPhase = RoboPhase.KillItWithFire;
+                    this.Robot.TargetEnemyName = robot.Value.Name;
+                    this.Robot.CurrentPhase = RoboPhase.KillItWithFire;
                 }
             }
         }
 
         private void Navigate()
         {
-            if (robot.DetermineDistance(robot.CurrentDirection) < YoloBot.OFFSET)
+            double distance = Robot.DetermineDistance(Robot.CurrentDirection);
+            if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.DriveCurve)
             {
-                var target = robot.Heading % 90;
-
-                if (target == 0) target = 90;
-
-                robot.TurnLeft(target);
+                if (distance > YoloBot.OFFSET)
+                {
+                    Robot.SetAhead(distance - YoloBot.OFFSET);
+                }
+                currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
             }
-            robot.SetAhead(100);
+            else if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.MoveForward)
+            {
+                if (Robot.DetermineDistance(Robot.DetermineLeftDirection(Robot.CurrentDirection)) > YoloBot.OFFSET)
+                {
+                    Robot.SetAhead(100);
+                }
+                Robot.SetTurnLeft(45);
+                currentMeetAndGreetPhase = MeetAndGreetStep.DriveCurve;
+            }
         }
 
-        public void Run()
+        public override void Run()
         {
-            robot.BodyColor = System.Drawing.Color.Orange;
+            Robot.BodyColor = System.Drawing.Color.Orange;
 
             CheckEnemies();
             Navigate();
-            robot.TurnRadarLeft(45);
-            robot.Execute();
+            Robot.SetTurnRadarLeft(45);
 
-            if (robot.Others == 1)
+            if (Robot.Others == 1)
             {
-                robot.TargetEnemyName = robot.KnownEnemies.FirstOrDefault().Value?.Name;
+                Robot.TargetEnemyName = Robot.KnownEnemies.FirstOrDefault().Value?.Name;
 
-                if (robot.TargetEnemyName != null)
-                    robot.CurrentPhase = RoboPhase.KillItWithFire;
+                if (Robot.TargetEnemyName != null)
+                    Robot.CurrentPhase = RoboPhase.KillItWithFire;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()} - {Enum.GetName(typeof(MeetAndGreetStep), currentMeetAndGreetPhase)}";
         }
     }
 }

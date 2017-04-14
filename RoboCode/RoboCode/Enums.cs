@@ -21,7 +21,12 @@ namespace YoloSpace
     enum KillItWithFireStep
     {
         MoveFromWall,
-        Positioning,
         Dodge
+    }
+
+    enum MeetAndGreetStep
+    {
+        DriveCurve,
+        MoveForward
     }
 }

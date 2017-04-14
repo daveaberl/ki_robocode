@@ -12,7 +12,7 @@ namespace YoloSpace
     class YoloBot : AdvancedRobot
     {
         public const double DISTANCE_THRESHOLD = 500;
-        public const double OFFSET = 40;
+        public const double OFFSET = 80;
 
         private Dictionary<RoboPhase, IPhase> phases = new Dictionary<RoboPhase, IPhase>();
         public Point Target { get; set; }
@@ -34,7 +34,6 @@ namespace YoloSpace
             }
         }
 
-        private KillItWithFireStep currentKillItWithFirePhase;
         private RoboPhase currentPhase = RoboPhase.WallRush;
         public RoboPhase CurrentPhase
         {
@@ -44,9 +43,6 @@ namespace YoloSpace
             }
             set
             {
-                Console.WriteLine("* changed Phase to: " + value + " *");
-                if (value == RoboPhase.KillItWithFire)
-                    currentKillItWithFirePhase = KillItWithFireStep.MoveFromWall;
                 foreach (var item in robots)
                 {
                     item.Value.Hits = 0;
@@ -77,43 +73,7 @@ namespace YoloSpace
             set;
         }
 
-        private Random random = new Random();
-
-        private bool isAway = false;
-        private long previousTime;
-
-        private void KillItWithFireNavigate()
-        {
-            switch (currentKillItWithFirePhase)
-            {
-                case KillItWithFireStep.MoveFromWall:
-                    TurnLeft(1);
-                    TurnLeft(Heading % 90);
-                    previousTime = Time;
-                    Ahead(100);
-                    currentKillItWithFirePhase = KillItWithFireStep.Positioning;
-                    break;
-
-                case KillItWithFireStep.Positioning:
-                    TurnRight(robots[TargetEnemyName].Bearing + 90);
-                    currentKillItWithFirePhase = KillItWithFireStep.Dodge;
-                    break;
-                case KillItWithFireStep.Dodge:
-                    if (!isAway && (Time - previousTime) > 20)
-                    {
-                        SetAhead(100);
-                        previousTime = Time;
-                        isAway = !isAway;
-                    }
-                    else if ((Time - previousTime) > 20)
-                    {
-                        SetBack(100);
-                        isAway = !isAway;
-                        previousTime = Time;
-                    }
-                    break;
-            }
-        }
+        private Random random = new Random(); 
 
         private Direction DetermineOppositeDirection(Direction direction)
         {
@@ -131,6 +91,24 @@ namespace YoloSpace
                     return Direction.UNKOWN;
             }
         }
+
+        public Direction DetermineLeftDirection(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.NORTH:
+                    return Direction.WEST;
+                case Direction.EAST:
+                    return Direction.NORTH;
+                case Direction.SOUTH:
+                    return Direction.EAST;
+                case Direction.WEST:
+                    return Direction.SOUTH;
+                default:
+                    return Direction.UNKOWN;
+            }
+        }
+
 
         public void SetGunHeadingTo(double targetDir)
         {
