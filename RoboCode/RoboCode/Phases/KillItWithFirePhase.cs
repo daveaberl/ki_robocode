@@ -171,7 +171,6 @@ namespace YoloSpace.Phases
 
         private void Aim(EnemyBot target, double power)
         {
-
             Point p = new Point { X = target.X, Y = target.Y };
             for (int i = 0; i < 10; i++)
             {
