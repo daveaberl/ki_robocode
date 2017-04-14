@@ -181,12 +181,12 @@ namespace YoloSpace.Phases
             return (Point)p;
         }
 
-        private void Shoot(EnemyBot target, double power)
+        private void Shoot(double power)
         {
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, Robot.Target.X, Robot.Target.Y);
             Robot.SetGunHeadingTo(degrees);
 
-            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0)
+            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0 && Robot.Target.X > 0 && Robot.Target.Y > 0)
                 Robot.SetFire(power);
         }
 
@@ -217,7 +217,6 @@ namespace YoloSpace.Phases
 
                     if (Robot.Time - target.Time >= 20)
                     {
-
                         Robot.CurrentPhase = RoboPhase.WallRush;
                         Robot.TargetEnemyName = null;
                         Robot.LastBulletHit = null;
@@ -227,7 +226,7 @@ namespace YoloSpace.Phases
                         double power = CalculatePower(target);
                         Console.WriteLine($"power: {power}");
                         Aim(target, power);
-                        Shoot(target, power);
+                        Shoot(power);
                     }
                 }
             }
