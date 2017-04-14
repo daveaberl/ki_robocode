@@ -395,7 +395,6 @@ namespace YoloSpace
 
                 Console.WriteLine(e.GetType().Name);
                 Console.WriteLine(e.Message ?? "Unkown");
-                throw e;
             }
         }
 
