@@ -202,5 +202,10 @@ namespace YoloSpace.Phases
                 Robot.LastBulletHit = null;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()} - {Enum.GetName(typeof(KillItWithFireStep), currentKillItWithFirePhase)}";
+        }
     }
 }
