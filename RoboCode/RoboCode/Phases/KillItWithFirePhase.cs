@@ -113,15 +113,17 @@ namespace YoloSpace.Phases
             if (target.PreviousEntry != null)
             {
                 double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
-                if (Math.Abs(hCPT) > 0.00001 && false)
+                if (Math.Abs(hCPT) > 0.00001)
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;
+                    Console.WriteLine($"hCPT:{hCPT}, target.Velocity:{target.Velocity}, radius:{radius}, toTargetHead:{toTargetHead}");
                     Robot.Target = new Point
                     {
-                        X = (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
-                        Y = (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
+                        X = target.X + (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
+                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
                     };
+                    Console.WriteLine($"X: {Robot.Target.X}, Y: {Robot.Target.Y}");
                     return;
                 }
             }
