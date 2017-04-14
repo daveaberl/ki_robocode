@@ -40,5 +40,10 @@ namespace YoloSpace.Phases
 
             return Robot.CurrentPhase;
         }
+
+        public override string ToString()
+        {
+            return this.GetType().Name;
+        }
     }
 }
