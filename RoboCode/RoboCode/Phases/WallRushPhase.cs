@@ -22,6 +22,9 @@ namespace YoloSpace.Phases
 
         public override void Run()
         {
+            if (Robot.RadarTurnRemaining == 0)
+                Robot.SetTurnRadarLeft(360);
+
             if (Robot.DistanceRemaining <= 0)
             {
                 Robot.CurrentPhase = RoboPhase.MeetAndGreet;

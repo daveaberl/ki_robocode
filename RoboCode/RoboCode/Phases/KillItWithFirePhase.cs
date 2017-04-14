@@ -132,19 +132,22 @@ namespace YoloSpace.Phases
         {
             Console.WriteLine($"target distance: {target.Distance}; gun heat: {Robot.GunHeat}; max power: {Rules.MAX_BULLET_POWER}");
 
+            double min = Math.Max(Rules.MIN_BULLET_POWER, 1);
+            double diff = Rules.MAX_BULLET_POWER - min;
+
             if (target.Distance < 100)
-                return 3;
+                return Rules.MAX_BULLET_POWER;
 
             if (target.Distance < 180)
-                return 2.5;
+                return min + diff * 0.75;
 
             if (target.Distance < 230)
-                return 2;
+                return min + diff * 0.5;
 
             if (target.Distance < 270)
-                return 1.5;
+                return min + diff * 0.25;
 
-            return 1;
+            return min;
         }
 
         private long GetTimeOfMaxHistory(EnemyBot target, long maxHist = 30)
@@ -154,6 +157,7 @@ namespace YoloSpace.Phases
 
         private void Aim(EnemyBot target, double power)
         {
+            
             Point p = new Point { X = target.X, Y = target.Y };
             for (int i = 0; i < 10; i++)
             {
@@ -161,16 +165,13 @@ namespace YoloSpace.Phases
                 double time = Robot.Time + nextTime;
                 p = GuessPosition(time, target);
             }
-            p.X = Math.Max(Robot.Width / 2, p.X);
-            p.Y = Math.Max(Robot.Height / 2, p.Y);
-            p.X = Math.Min(Robot.BattleFieldWidth - Robot.Width / 2, p.X);
-            p.Y = Math.Min(Robot.BattleFieldHeight - Robot.Height / 2, p.Y);
             Robot.Target = p;
         }
 
         private Point GuessPosition(double time, EnemyBot target)
         {
             double diff = time - target.Time;
+            Point? p = null;
             if (target.PreviousEntry != null)
             {
                 double hCPT = (target.HeadingRad - target.PreviousEntry.HeadingRad) / (target.Time - target.PreviousEntry.Time);
@@ -178,27 +179,42 @@ namespace YoloSpace.Phases
                 {
                     double radius = target.Velocity / hCPT;
                     double toTargetHead = diff * hCPT;
-                    return new Point
+                    p = new Point
                     {
                         X = target.X + (Math.Cos(target.HeadingRad) * radius) - (Math.Cos(target.HeadingRad + toTargetHead) * radius),
-                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius),
+                        Y = target.Y + (Math.Sin(target.HeadingRad + toTargetHead) * radius) - (Math.Sin(target.HeadingRad) * radius)
                     };
                 }
             }
 
-            return new Point
+            if (p == null)
             {
-                X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
-                Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
+                p = new Point
+                {
+                    X = target.X + Math.Sin(target.HeadingRad) * target.Velocity * diff,
+                    Y = target.Y + Math.Cos(target.HeadingRad) * target.Velocity * diff
+                };
+            }
+
+            double x = Math.Max(Robot.Width / 2, p.Value.X);
+            x = Math.Min(Robot.BattleFieldWidth - Robot.Width / 2, x);
+            double y = Math.Max(Robot.Height / 2, p.Value.Y);
+            y = Math.Min(Robot.BattleFieldHeight - Robot.Height / 2, y);
+            p = new Point
+            {
+                X = x,
+                Y = y
             };
+
+            return (Point)p;
         }
 
-        private void Shoot(EnemyBot target, double power)
+        private void Shoot(double power)
         {
             double degrees = CoordinateHelper.GetAngle(Robot.X, Robot.Y, Robot.Target.X, Robot.Target.Y);
             Robot.SetGunHeadingTo(degrees);
 
-            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0)
+            if (Robot.GunTurnRemaining < 0.5 && Robot.GunHeat == 0 && Robot.Target.X > 0 && Robot.Target.Y > 0)
                 Robot.SetFire(power);
         }
 
@@ -226,10 +242,20 @@ namespace YoloSpace.Phases
                 if (Robot.KnownEnemies.ContainsKey(Robot.TargetEnemyName))
                 {
                     var target = Robot.KnownEnemies[Robot.TargetEnemyName];
-                    double power = CalculatePower(target);
-                    Console.WriteLine($"power: {power}");
-                    Aim(target, power);
-                    Shoot(target, power);
+
+                    if (Robot.Time - target.Time >= 20)
+                    {
+                        Robot.CurrentPhase = RoboPhase.WallRush;
+                        Robot.TargetEnemyName = null;
+                        Robot.LastBulletHit = null;
+                    }
+                    else
+                    {
+                        double power = CalculatePower(target);
+                        Console.WriteLine($"power: {power}");
+                        Aim(target, power);
+                        Shoot(power);
+                    }
                 }
             }
             else
