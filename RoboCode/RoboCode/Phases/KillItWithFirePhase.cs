@@ -12,6 +12,7 @@ namespace YoloSpace.Phases
         public const int MAX_DISTANCE = 500;
         public const int WALL_OFFSET = 80;
 
+        private Random random = new Random();
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
 
@@ -36,23 +37,30 @@ namespace YoloSpace.Phases
                     break;
                 case KillItWithFireStep.Dodge:
                     var rideIntoTheDangerZone = DetermineWallDanger();
-                    Console.WriteLine("WALLLLL!!! " + rideIntoTheDangerZone);
-
                     if (rideIntoTheDangerZone)
                     {
-                        Robot.SetAhead(0);
+                        Robot.Stop();
                         currentKillItWithFirePhase = KillItWithFireStep.EscapeTheDangerZone;
-                    }
-                    else if (!isAway && Robot.DistanceRemaining == 0)
-                    {
-                        Robot.SetAhead(100);
-                        Robot.SetTurnLeft(100);
-                        isAway = !isAway;
                     }
                     else if (Robot.DistanceRemaining == 0)
                     {
-                        Robot.SetBack(100);
-                        Robot.SetTurnRight(100);
+                        if (random.Next(0, 2) == 0)
+                        {
+                            Robot.SetAhead(random.Next(80, 120));
+                        }
+                        else
+                        {
+                            Robot.SetBack(random.Next(80, 120));
+                        }
+
+                        if (random.Next(0, 2) == 0)
+                        {
+                            Robot.SetTurnLeft(random.Next(80, 120));
+                        }
+                        else
+                        {
+                            Robot.SetTurnRight(random.Next(80, 120));
+                        }
                         isAway = !isAway;
                     }
                     break;
@@ -79,7 +87,7 @@ namespace YoloSpace.Phases
         {
             double centerAngle = Math.Atan2(Robot.BattleFieldWidth / 2 - Robot.X, Robot.BattleFieldHeight / 2 - Robot.Y);
             Robot.SetTurnRightRadians(NormalRelativeAngle(centerAngle - Robot.HeadingRadians));
-            Robot.SetAhead(150);
+            Robot.SetAhead(50);
         }
 
         private double NormalRelativeAngle(double a)
@@ -157,7 +165,7 @@ namespace YoloSpace.Phases
 
         private void Aim(EnemyBot target, double power)
         {
-            
+
             Point p = new Point { X = target.X, Y = target.Y };
             for (int i = 0; i < 10; i++)
             {
