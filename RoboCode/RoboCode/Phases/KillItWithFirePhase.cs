@@ -15,8 +15,14 @@ namespace YoloSpace.Phases
         private KillItWithFireStep currentKillItWithFirePhase;
         private bool isAway;
 
-        public KillItWithFirePhase(YoloBot Robot) : base(Robot)
+        public KillItWithFirePhase(YoloBot robot) : base(robot)
         {
+        }
+
+        public override void ActivatePhase(RoboPhase previousPhase)
+        {
+            base.ActivatePhase(previousPhase);
+            currentKillItWithFirePhase = KillItWithFireStep.MoveFromWall;
         }
 
         private void Navigate()
@@ -24,14 +30,8 @@ namespace YoloSpace.Phases
             switch (currentKillItWithFirePhase)
             {
                 case KillItWithFireStep.MoveFromWall:
-                    Robot.TurnLeft(1);
-                    Robot.TurnLeft(Robot.Heading % 90);
-                    Robot.Ahead(100);
-                    currentKillItWithFirePhase = KillItWithFireStep.Positioning;
-                    break;
-
-                case KillItWithFireStep.Positioning:
-                    Robot.TurnRight(Robot.KnownEnemies[Robot.TargetEnemyName].Bearing + 90);
+                    Robot.SetTurnLeft(Robot.Heading % 90 == 0 ? 90 : Robot.Heading % 90);
+                    Robot.SetAhead(100);
                     currentKillItWithFirePhase = KillItWithFireStep.Dodge;
                     break;
                 case KillItWithFireStep.Dodge:
