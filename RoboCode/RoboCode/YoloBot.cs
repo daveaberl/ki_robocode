@@ -388,15 +388,14 @@ namespace YoloSpace
                     Execute();
                 }
             }
-            catch (RobotException) { }
+            catch (RobotException) { throw; }
             catch (Exception e)
             {
                 exception = e;
 
                 Console.WriteLine(e.GetType().Name);
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                Thread.Sleep(10000);
+                Console.WriteLine(e.Message ?? "Unkown");
+                throw e;
             }
         }
 
