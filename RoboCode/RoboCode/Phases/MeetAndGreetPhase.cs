@@ -19,6 +19,7 @@ namespace YoloSpace.Phases
         {
             base.ActivatePhase(previousPhase);
             currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
+            Robot.SetTurnLeft(Robot.Heading % 90);
         }
 
         private void CheckEnemies()
@@ -35,23 +36,26 @@ namespace YoloSpace.Phases
 
         private void Navigate()
         {
-            double distance = Robot.DetermineDistance(Robot.CurrentDirection);
-            if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.DriveCurve)
+            if(Robot.TurnRemaining == 0)
             {
-                if (distance > YoloBot.OFFSET)
+                double distance = Robot.DetermineDistance(Robot.CurrentDirection);
+                if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.DriveCurve)
                 {
-                    Robot.SetAhead(distance - YoloBot.OFFSET);
+                    if (distance > YoloBot.OFFSET)
+                    {
+                        Robot.SetAhead(distance - YoloBot.OFFSET);
+                    }
+                    currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
                 }
-                currentMeetAndGreetPhase = MeetAndGreetStep.MoveForward;
-            }
-            else if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.MoveForward)
-            {
-                if (Robot.DetermineDistance(Robot.DetermineLeftDirection(Robot.CurrentDirection)) > YoloBot.OFFSET)
+                else if (Robot.DistanceRemaining <= 0 && currentMeetAndGreetPhase == MeetAndGreetStep.MoveForward)
                 {
-                    Robot.SetAhead(100);
+                    if (Robot.DetermineDistance(Robot.DetermineLeftDirection(Robot.CurrentDirection)) > YoloBot.OFFSET)
+                    {
+                        Robot.SetAhead(100);
+                    }
+                    Robot.SetTurnLeft(45);
+                    currentMeetAndGreetPhase = MeetAndGreetStep.DriveCurve;
                 }
-                Robot.SetTurnLeft(45);
-                currentMeetAndGreetPhase = MeetAndGreetStep.DriveCurve;
             }
         }
 

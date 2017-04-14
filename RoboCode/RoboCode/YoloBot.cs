@@ -23,7 +23,6 @@ namespace YoloSpace
         {
             get
             {
-                TurnLeft(Heading % 90);
                 if (Heading == 270)
                     return Direction.WEST;
                 else if (Heading == 90)
@@ -137,16 +136,16 @@ namespace YoloSpace
             if (targetDir > Heading)
             {
                 if (absDegrees > 180)
-                    TurnLeft(absDegrees - 180);
+                    SetTurnLeft(absDegrees - 180);
                 else
-                    TurnRight(absDegrees);
+                    SetTurnRight(absDegrees);
             }
             else if (targetDir < Heading)
             {
                 if (absDegrees > 180)
-                    TurnRight(absDegrees - 180);
+                    SetTurnRight(absDegrees - 180);
                 else
-                    TurnLeft(absDegrees);
+                    SetTurnLeft(absDegrees);
             }
         }
 

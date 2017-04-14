@@ -32,6 +32,9 @@ namespace YoloSpace.Phases
             if (Robot.DistanceRemaining == 0 && !isDriving)
             {
                 Robot.SetTankHeadingTo(CoordinateHelper.GetAngle(Robot.X, Robot.Y, xMiddle, yMiddle));
+            }
+            else if(Robot.TurnRemaining == 0 && !isDriving)
+            {
                 Robot.SetAhead(200);
                 isDriving = true;
             }
